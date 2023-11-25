@@ -1,6 +1,6 @@
 		body {
 			background-color: #f4f7f6;
-			margin-top: 20px;
+			margin-top: 30px;
 		}
 
 		.card {
@@ -32,7 +32,10 @@
 		.people-list {
 			transition: 0.5s;
 		}
-
+		
+		.people-list .chat-list{
+			height: 438px;
+		}
 		.people-list .chat-list li {
 			padding: 10px 15px;
 			list-style: none;
@@ -268,6 +271,92 @@
 			display:none;
 		}
 		
+		.modal-friend{
+			display:none;
+		}
+		.modal-friend.active{
+			display:block;
+		}
+		
+		.send_message_btn{
+			display: none;
+		}
+		.send_message_btn.active{
+			display:block;
+		}
+		
+		.group-icon-navbar{
+			width: 100%;
+			display:flex;
+			justify-content: center;
+			margin-bottom:20px;
+		}
+		.icon-navbar{
+			font-size: 25px;
+			height: 50px;
+			width: 100%;
+			background-color: #fff;
+			display: flex;
+			align-items: center;
+			justify-content: center;
+			border-radius: 10px;
+		}
+		.icon-navbar.active{
+			background-color: rgb(128, 255, 255);
+		}
+		
+		.icon-navbar:hover{
+			background-color: #ccc;
+		}
+		.modal-createCvs{
+			display: none;
+		}
+		
+		.modal-createCvs.active{
+			display: block;
+		}
+		.create-conversation{
+			background-color: lightskyblue;
+		}
+		.add_into_conversation.hiden{
+			display:none;
+		}
+		
+		.modal-add_member{
+			display:none;
+		}
+		.modal-add_member.active{
+			display: block;
+		}
+		
+		.add-member-list li {
+			padding: 10px 15px;
+			list-style: none;
+			border-radius: 3px;
+			display: flex;
+		}
+
+		.add-member-list li.active:hover {
+			background: #efefef;
+			cursor: pointer;
+		}
+
+		.add-member-list li.active {
+			background: #fff;
+		}
+		
+		.add-member-list li .name {
+			font-size: 15px;
+		}
+
+		.add-member-list img {
+			width: 45px;
+			border-radius: 50%;
+			margin-right:10px;
+		}
+		.message_input{
+			width: 80%;
+		}
 		
 		
 		

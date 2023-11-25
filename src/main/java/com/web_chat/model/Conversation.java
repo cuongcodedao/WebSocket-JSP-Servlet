@@ -1,12 +1,10 @@
 package com.web_chat.model;
 
-import java.util.List;
-
 public class Conversation {
 	private int id;
 	private String name;
 	private String avatar;
-	private List<User> users;
+	private String usernameCreater;
 
 	public int getId() {
 		return id;
@@ -32,12 +30,12 @@ public class Conversation {
 		this.avatar = avatar;
 	}
 
-	public List<User> getMessages() {
-		return users;
+	public String getUsernameCreater() {
+		return usernameCreater;
 	}
 
-	public void setMessages(List<User> users) {
-		this.users = users;
+	public void setUsernameCreater(String usernameCreater) {
+		this.usernameCreater = usernameCreater;
 	}
 
 }

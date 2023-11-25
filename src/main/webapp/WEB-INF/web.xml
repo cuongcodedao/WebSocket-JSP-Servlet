@@ -24,6 +24,20 @@
 		<servlet-name>ChatRestController</servlet-name>
 		<servlet-class>com.web_chat.controller.api.ChatRestController</servlet-class>
 	</servlet>
+	<servlet>
+		<description>
+		</description>
+		<display-name>FriendRestController</display-name>
+		<servlet-name>FriendRestController</servlet-name>
+		<servlet-class>com.web_chat.controller.api.FriendRestController</servlet-class>
+	</servlet>
+	<servlet>
+		<description>
+		</description>
+		<display-name>ConversationRestController</display-name>
+		<servlet-name>ConversationRestController</servlet-name>
+		<servlet-class>com.web_chat.controller.api.ConversationRestController</servlet-class>
+	</servlet>
 	<servlet-mapping>
 		<servlet-name>LoginController</servlet-name>
 		<url-pattern>/LoginController</url-pattern>
@@ -35,6 +49,14 @@
 	<servlet-mapping>
 		<servlet-name>ChatRestController</servlet-name>
 		<url-pattern>/ChatRestController</url-pattern>
+	</servlet-mapping>
+	<servlet-mapping>
+		<servlet-name>FriendRestController</servlet-name>
+		<url-pattern>/FriendRestController</url-pattern>
+	</servlet-mapping>
+	<servlet-mapping>
+		<servlet-name>ConversationRestController</servlet-name>
+		<url-pattern>/ConversationRestController</url-pattern>
 	</servlet-mapping>
 
 	<session-config>

@@ -11,4 +11,5 @@ public interface IUserService {
 	public List<User> findUserOnline();
 	public List<User> findAll();
 	public User findByUserName(String username);
+	public List<User> findAllByConversationId(int conversation_id);
 }

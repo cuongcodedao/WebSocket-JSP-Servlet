@@ -23,7 +23,13 @@ public class ChatRestController extends HttpServlet {
 	protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
 		String sender = request.getParameter("sender");
 		String receiver = request.getParameter("receiver");
-		List<Message> messages = messageService.findAllMessageBySenderAndReceiver(sender, receiver);
+		List<Message> messages = null;
+		if(!sender.equals("anyone")) {
+			messages = messageService.findAllMessageBySenderAndReceiver(sender, receiver);
+		}
+		else {
+			messages = messageService.findAllMessageByConversationName(receiver);
+		}
 		ObjectMapper objectMapper = new ObjectMapper();
 		String json = objectMapper.writeValueAsString(messages);
 		response.setContentType("application/json");

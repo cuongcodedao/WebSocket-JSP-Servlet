@@ -35,8 +35,9 @@ public class MessageDAO extends AbstractDAO<Message> implements IMessageDAO{
 
 	@Override
 	public int save(Message message) {
-		String sql = "insert into message(`from`, `to`, content, date_sent) values(?,?,?,?)";
-		return save(sql, message.getFrom(), message.getTo(), message.getContent(), message.getDate_sent());
+		String sql = "insert into message(`from`, `to`, content, date_sent, conversation_id, `type`) values(?,?,?,?,?,?)";
+		return save(sql, message.getFrom(), message.getTo(), message.getContent(), 
+				message.getDate_sent(), message.getConversation_id(), message.getType());
 	}
 
 	@Override
@@ -50,6 +51,18 @@ public class MessageDAO extends AbstractDAO<Message> implements IMessageDAO{
 	public List<Message> getAllMessageBySenderandReceiver(String sender, String receiver) {
 		String sql = "select * from message where (`from` = ? and `to` = ?) or (`from` = ? and `to` = ?)";
 		return query(sql, new MessageMapper() ,sender, receiver, receiver, sender);
+	}
+
+	@Override
+	public void deleteAddFriendMessage(String user1, String user2) {
+		String sql = "delete from message where `to` = ? and `from` = ? and content = ?";
+		update(sql, user1, user2, "add_friend");
+	}
+
+	@Override
+	public List<Message> getAllMesssageByConversationId(int id) {
+		String sql = "select * from message where conversation_id = ?";
+		return query(sql, new MessageMapper(), id);
 	}
 	
 	

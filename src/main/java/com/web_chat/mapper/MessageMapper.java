@@ -17,6 +17,7 @@ public class MessageMapper implements RowMapper<Message>{
 			message.setFrom(rs.getString("from"));
 			message.setTo(rs.getString("to"));
 			message.setContent(rs.getString("content"));
+			message.setType(rs.getString("type"));;
 //			SimpleDateFormat dateFormat = new SimpleDateFormat("dd/MM/yyyy HH:mm:ss");
 //            String formattedDate = dateFormat.format(date);
 			message.setDate_sent(rs.getTimestamp("date_sent"));

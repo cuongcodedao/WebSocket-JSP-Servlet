@@ -11,9 +11,10 @@ public class ConversationMapper implements RowMapper<Conversation>{
 	public Conversation rowMapper(ResultSet rs) {
 		Conversation cvs = new Conversation();
 		try {
-			cvs.setName(rs.getString("name"));
+			cvs.setName(rs.getString("group__name"));
 			cvs.setId(rs.getInt("id"));
 			cvs.setAvatar(rs.getString("avatar"));
+			cvs.setUsernameCreater(rs.getString("creater"));
 			return cvs;
 		} catch (SQLException e) {
 			return null;

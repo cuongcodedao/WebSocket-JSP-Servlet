@@ -3,6 +3,8 @@ package com.web_chat.dao.impl;
 import java.util.List;
 
 import com.web_chat.dao.IUserDAO;
+import com.web_chat.mapper.ConversationMapper;
+import com.web_chat.mapper.MessageMapper;
 import com.web_chat.mapper.UserMapper;
 import com.web_chat.model.User;
 
@@ -58,6 +60,16 @@ public class UserDAO extends AbstractDAO<User> implements IUserDAO{
 		String sql = "select * from user where username = ?";
 		List<User> users = query(sql, new UserMapper(), username);
 		return users.size() > 0 ? users.get(0) : null;
+	}
+
+	@Override
+	public List<User> findAllByConversationId(int conversation_id) {
+		StringBuilder sb = new StringBuilder("select user.* from user ");
+		sb.append("inner join conversation_user on user.id = ");
+		sb.append("conversation_user.user_id inner join ");
+		sb.append("conversation on conversation_user.conversation_id = conversation.id ");
+		sb.append("where conversation.id = ?");
+		return query(sb.toString(), new UserMapper(), conversation_id);
 	}
 	
 	

@@ -48,5 +48,10 @@ public class UserService implements IUserService{
 	public User findByUserName(String username) {
 		return userDAO.findByUserName(username);
 	}
+
+	@Override
+	public List<User> findAllByConversationId(int conversation_id) {
+		return userDAO.findAllByConversationId(conversation_id);
+	}
 	
 }
