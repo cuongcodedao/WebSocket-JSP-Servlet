@@ -68,7 +68,7 @@
 									<a href="javascript:void(0);" class="btn btn-outline-secondary"><i
 										class="fa fa-camera"></i></a> <a href="javascript:void(0)"
 										onclick="triggerFileInput()" class="btn btn-outline-primary"><i
-										class="fa fa-image"></i></a> <input type="file" id="fileInput"
+										class="fa fa-image"></i></a> <input type="file" multiple id="fileInput"
 										style="display: none;" onchange="convertImage()">
 									<a href="javascript:void(0);" class="btn btn-outline-info"><i
 										class="fa fa-cogs"></i></a> <a href="javascript:void(0);"
@@ -76,6 +76,7 @@
 								</div>
 							</div>
 						</div>
+	
 
 
 						<div class="chat-history">
@@ -158,7 +159,7 @@
 						</div>
 						<div class="form-group">
 							<label for="avatar">Choose Avatar:</label> <input type="file"
-								class="form-control-file" id="avatar" name="avatar">
+								class="form-control-file" id="avatar" name="avatar" onchange = "selectAvatar()">
 						</div>
 					</form>
 				</div>

@@ -6,6 +6,7 @@ var ampm = "AM";
 if (hours >= 12) ampm = "PM";
 var formattedMinutes = minutes.toString().padStart(2, '0');
 var formattedHours = hours.toString().padStart(2, '0');
+var hh_mm = formattedHours+":"+formattedMinutes;
 var username = document.querySelector(".username").value;
 var receiver = null;
 var conversation = null;
@@ -15,7 +16,10 @@ var isfriend = null;
 var listFriend = null;
 var typeMessage = "text";
 var byteArray = null;
+var listFile = [];
+var avatarFile = null;
 var chatBoxScroll = document.querySelector(".chat-history");
+var conversation_wrap = document.querySelector('.conversation_wrap');
 function connect(callback) {
 	var host = document.location.host;
 	var pathname = document.location.pathname;
@@ -36,17 +40,7 @@ function connect(callback) {
 		else {
 			var message = document.createElement('li');
 			message.classList.add('clearfix');
-			message.innerHTML = `
-	        		<li class="clearfix">
-						<div class="message-data">
-							<img src="https://bootdey.com/img/Content/avatar/avatar7.png" alt="avatar">
-							<span class="message-data-time">${formattedHours}:${formattedMinutes} ${ampm}, Today</span>
-						</div>
-						<div class="message o-message">
-							${messageContent.content}
-						</div>
-					</li>
-	        	`;
+			message.innerHTML = buildMessage(messageContent, false, hh_mm);
 			conversation_wrap.appendChild(message);
 		}
 		chatBoxScroll.scrollTop = chatBoxScroll.scrollHeight;
@@ -72,32 +66,95 @@ window.onload = function() {
 
 function send() {
 	var content = document.querySelector(".content").value;
-	var conversation_wrap = document.querySelector('.conversation_wrap');
-	var message = document.createElement('li');
-	message.classList.add('clearfix');
-	message.innerHTML = `
-        		<li class="clearfix">
-				<div class="message-data text-right">
-				<span class="message-data-time">${formattedHours}:${formattedMinutes} ${ampm}, Today</span>
-				</div>
-				<div class="message m-message float-right">
-					${content}
-				</div>
-				</li>
-        	`;
-	conversation_wrap.appendChild(message);
+	if (content != "") {
+		var message = document.createElement('li');
+		message.classList.add('clearfix');
+		conversation_wrap.appendChild(message);
+		var json = buildJson(content, "text");
+		message.innerHTML =  buildMessage(JSON.parse(json), true, hh_mm);
+		ws.send(json);
+	}
+	else if (listFile.length != 0) {
+		sendAttachment();
+	}
+	document.querySelector(".content").value = "";
 	chatBoxScroll.scrollTop = chatBoxScroll.scrollHeight;
+}
+
+function sendAttachment() {
+	for (var file of listFile) {
+		var message = document.createElement('li');
+		message.classList.add('clearfix');
+		message.innerHTML = renderFileSent(file);
+		conversation_wrap.appendChild(message);
+		var content = file.name;
+		var type = file.type;
+		var json = buildJson(content, type);
+		ws.send(json);
+		ws.send(file);
+	}
+	listFile = [];
+}
+function renderFileSent(file){
+	var message;
+	if (file.type.includes("image")) {
+			const url = URL.createObjectURL(file);
+			message = `
+				<div class="message-data text-right">
+				<span class="message-data-time">${hh_mm} ${ampm}</span>
+				</div>
+				<div class="message float-right">
+					<img src="${url}" alt="" width="250" height="150">
+				</div>
+        	`;
+		}
+		else if (file.type.includes("video")) {
+			const url = URL.createObjectURL(file);
+			message = `
+	        		<div class="message-data text-right">
+							<span class="message-data-time">${hh_mm} ${ampm}</span>
+						</div>
+						<div class="message float-right">
+							<video width="300" height="200" controls>
+							  <source src="${url}" type="video/mp4">
+							  Your browser does not support the video tag.
+							</video>
+						</div>
+	        	`;
+		}
+		else if (file.type.includes("pdf")) {
+			const url = URL.createObjectURL(file);
+			message = `
+	        		<div class="message-data text-right">
+							<span class="message-data-time">${hh_mm} ${ampm}</span>
+						</div>
+						<div class="message m-message float-right">
+							<a href="${url}">Click here to view</a>
+						</div>
+	        	`;
+		}
+		else if (file.type.includes("text")) {
+			message = `
+	        		<div class="message-data text-right">
+							<span class="message-data-time">${hh_mm} ${ampm}</span>
+						</div>
+						<div class="message m-message float-right">
+							${content}
+						</div>
+	        	`;
+		}
+		return message;
+}
+
+function buildJson(content, type) {
 	var json = JSON.stringify({
 		"content": content,
 		"from": username,
 		"to": receiver,
 		"conversation_id": conversation_id,
-		"type": typeMessage
+		"type": type
 	});
-	if(typeMessage != "text") ws.send(byteArray);
-	ws.send(json);
-	document.querySelector(".content").value = "";
-	typeMessage = "text";
+	return json;
 }
 
 var loadUser = function() {
@@ -148,23 +205,12 @@ function getMessage(sender, receiver) {
 				var hh_mm = date.getHours() + ":" + date.getMinutes();
 				if (message.content != "add_friend") {
 					if (message.from != username) {
-						messageAppend += `
-						   					<li class="clearfix">
-						   						<div class="message-data">
-													<img src="https://bootdey.com/img/Content/avatar/avatar7.png"
-													alt="avatar"> <span class="message-data-time">${hh_mm} AM ,Today</span>
-												</div>
-												<div class="message o-message">${message.content}</div>
-											</li>
-										`;
+						messageAppend += `<li class="clearfix">` + buildMessage(message, false, hh_mm) +
+							`</li>`;
 					}
 					else {
-						messageAppend += `<li class="clearfix">
-											<div class="message-data text-right">
-												<span class="message-data-time">${hh_mm} AM ,Today</span>
-											</div>
-											<div class="message m-message float-right">${message.content}</div>
-											</li>`
+						messageAppend += `<li class="clearfix">` + buildMessage(message, true, hh_mm) +
+							`</li>`;
 					}
 				}
 				else if (message.from != username) {
@@ -176,6 +222,115 @@ function getMessage(sender, receiver) {
 		}
 	};
 	xmlRequest.send();
+}
+function buildMessage(message, ride_sight, hh_mm) {
+	var type = message.type;
+	var content = message.content;
+	var receiver = message.to;
+	if(receiver == null){
+		receiver = message.conversation_id;
+	}
+	var username = message.from;
+	var msg;
+	if (ride_sight == false) {
+		if (type.includes("image")) {
+			var srcImage = "http://localhost:8080/files?sender=" + username + "&receiver=" + receiver + "&filename=" + content;
+			msg = `<div class="message-data">
+							<img src="https://bootdey.com/img/Content/avatar/avatar7.png" alt="avatar">
+							<span class="message-data-time">${hh_mm} ${ampm}</span>
+						</div>
+						<div class="message">
+							<img src="${srcImage}" alt="" width="250" height="150">
+						</div>`
+		}
+		else if (type.includes("video")) {
+			var srcvideo = "http://localhost:8080/files?sender=" + username + "&receiver=" + receiver + "&filename=" + content;
+			msg = `
+	        		<div class="message-data">
+							<img src="https://bootdey.com/img/Content/avatar/avatar7.png" alt="avatar">
+							<span class="message-data-time">${hh_mm} ${ampm}</span>
+						</div>
+						<div class="message">
+							<video width="300" height="200" controls>
+							  <source src="${srcvideo}" type="video/mp4">
+							  Your browser does not support the video tag.
+							</video>
+						</div>
+	        	`;
+		}
+		else if (type.includes("pdf")) {
+			var srcPdf = "http://localhost:8080/files?sender=" + username + "&receiver=" + receiver + "&filename=" + content;
+			msg = `
+	        		<div class="message-data">
+							<img src="https://bootdey.com/img/Content/avatar/avatar7.png" alt="avatar">
+							<span class="message-data-time">${hh_mm} ${ampm}</span>
+						</div>
+						<div class="message o-message">
+							<a href="${srcPdf}">Click here to view</a>
+						</div>
+	        	`;
+		}
+		else if (type.includes("text")) {
+			msg = `
+	        		<div class="message-data">
+							<img src="https://bootdey.com/img/Content/avatar/avatar7.png" alt="avatar">
+							<span class="message-data-time">${hh_mm} ${ampm}</span>
+						</div>
+						<div class="message o-message">
+							${content}
+						</div>
+	        	`;
+		}
+	}
+	else {
+		if (type.includes("image")) {
+			var srcImage = "http://localhost:8080/files?sender=" + username + "&receiver=" + receiver + "&filename=" + content;
+			msg = `
+				<div class="message-data text-right">
+				<span class="message-data-time">${hh_mm} ${ampm}</span>
+				</div>
+				<div class="message float-right">
+					<img src="${srcImage}" alt="" width="250" height="150">
+				</div>
+        	`;
+		}
+		else if (type.includes("video")) {
+			var srcvideo = "http://localhost:8080/files?sender=" + username + "&receiver=" + receiver + "&filename=" + content;
+			msg = `
+	        		<div class="message-data text-right">
+							<span class="message-data-time">${hh_mm} ${ampm}</span>
+						</div>
+						<div class="message float-right">
+							<video width="300" height="200" controls>
+							  <source src="${srcvideo}" type="video/mp4">
+							  Your browser does not support the video tag.
+							</video>
+						</div>
+	        	`;
+		}
+		else if (type.includes("pdf")) {
+			var srcPdf = "http://localhost:8080/files?sender=" + username + "&receiver=" + receiver + "&filename=" + content;
+			msg = `
+	        		<div class="message-data text-right">
+							<span class="message-data-time">${hh_mm} ${ampm}</span>
+						</div>
+						<div class="message m-message float-right">
+							<a href="${srcPdf}">Click here to view</a>
+						</div>
+	        	`;
+		}
+		else if (type.includes("text")) {
+			msg = `
+	        		<div class="message-data text-right">
+							<span class="message-data-time">${hh_mm} ${ampm}</span>
+						</div>
+						<div class="message m-message float-right">
+							${content}
+						</div>
+	        	`;
+		}
+	}
+	return msg;
 }
 
 function loadMessage(element) {
@@ -353,7 +508,7 @@ function showModalCreateConversation() {
 
 function createNewConversation() {
 	var group_name = document.getElementById("groupName").value;
-	if(group_name==null) return;
+	if (group_name == null) return;
 	const data = {
 		usernameCreater: username,
 		name: group_name
@@ -374,7 +529,7 @@ function createNewConversation() {
 			return response.json();
 		})
 		.then(data => {
-			console.log(data);
+			uploadAvatar(avatarFile, group_name);
 		})
 		.catch(error => {
 			console.error('There was an error with the fetch operation:', error);
@@ -399,7 +554,7 @@ function loadConversation() {
 								<div class="about">
 									<div class="name">${conversation.name}</div>
 									<div class="status">
-										<i class="fa fa-circle ${status}"></i>
+										<i class="fa fa-circle online"></i>
 									</div>
 								</div>
 							`;
@@ -435,8 +590,8 @@ function addIntoConversation() {
 		friendAddMember.appendChild(chatListItem);
 	}
 }
-function addThisMember(element){
-	fetch("http://localhost:8080/api_conversation?friend_name=" + element.id + "&conversation_name="+conversation, {
+function addThisMember(element) {
+	fetch("http://localhost:8080/api_conversation?friend_name=" + element.id + "&conversation_name=" + conversation, {
 		method: 'POST',
 		headers: {
 			'Content-Type': 'application/json;charset=UTF-8'
@@ -456,41 +611,38 @@ function addThisMember(element){
 		});
 	document.querySelector(".modal-add_member.active").classList.remove("active");
 }
-function closeModalCreateCVS(){
+function closeModalCreateCVS() {
 	var modelclose = document.querySelector(".modal-createCvs");
-	modelclose.classList.remove("active");  
+	modelclose.classList.remove("active");
 }
-function closeModalAddMember(){
+function closeModalAddMember() {
 	document.querySelector(".modal-add_member").classList.remove("active");
 }
 
 
 function triggerFileInput() {
-  document.getElementById('fileInput').click();
+	document.getElementById('fileInput').click();
 }
 
 function convertImage() {
-  const fileInput = document.getElementById('fileInput');
-  const file = fileInput.files[0];
-  const reader = new FileReader();
-
-  reader.onload = function(event) {
-	typeMessage = file.type;
-    const binaryString = event.target.result;
-    byteArray = new Uint8Array(new ArrayBuffer(binaryString.length));
-    for (let i = 0; i < binaryString.length; i++) {
-      byteArray[i] = binaryString.charCodeAt(i);
-    }
-
-    const base64String = btoa(String.fromCharCode.apply(null, byteArray));
-    
-    // Set giá trị của input tin nhắn thành base64 của ảnh
-    const messageInput = document.querySelector('.message_input');
-    var divWrapImage = document.createElement("div");
-    divWrapImage.innerHTML = `<img src="data:image/jpeg;base64,${base64String}" alt="Selected Image" />`;
-    messageInput.appendChild(divWrapImage);
-  }
-  reader.readAsBinaryString(file);
+	const fileInput = document.getElementById('fileInput');
+	const files = fileInput.files;
+	listFile = files;
+	console.log(listFile);
+}
+async function uploadAvatar(file, name){
+	let formData = new FormData(); 
+    formData.append("file", file);
+    formData.append("name", name)
+    await fetch('/files/avatar', {
+      method: "POST", 
+      body: formData
+    }); 
+    alert('The file upload with Ajax and Java was a success!');
+}
+function selectAvatar(){
+	const avatar = document.getElementById("avatar");
+	avatarFile = avatar.files[0];
 }
 
 

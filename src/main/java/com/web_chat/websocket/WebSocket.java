@@ -1,20 +1,12 @@
 package com.web_chat.websocket;
 
-import java.awt.image.BufferedImage;
-import java.io.ByteArrayInputStream;
-import java.io.File;
 import java.io.IOException;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
+import java.nio.ByteBuffer;
 import java.sql.Timestamp;
 import java.time.LocalDateTime;
 import java.util.LinkedList;
-import java.util.Map;
 import java.util.Queue;
-import java.util.concurrent.ConcurrentHashMap;
 
-import javax.imageio.ImageIO;
 import javax.websocket.EncodeException;
 import javax.websocket.OnClose;
 import javax.websocket.OnError;
@@ -38,8 +30,9 @@ public class WebSocket {
 	private Session session;
 	private String username;
 	private Queue<FILE> files = new LinkedList<>();
-
 	private IMessageService messageService = MessageService.getInstance();
+
+	
 	private IUserService userService = UserService.getInstance();
 	private ChatAbstractService chatAbstractService = ChatService.getInstance();
 	
@@ -58,7 +51,6 @@ public class WebSocket {
 		LocalDateTime localDateTime = LocalDateTime.now();
 		Timestamp timestamp = Timestamp.valueOf(localDateTime);
 		message.setDate_sent(timestamp);
-		System.out.println(message.getType());
 		messageService.save(message);
 		if(message.getTo() != null) {
 			chatAbstractService.sendMessageToOne(message, files);
@@ -67,19 +59,10 @@ public class WebSocket {
 			chatAbstractService.sendMessageToConversation(message, files);
 		}
 	}
+	
 	@OnMessage
-	public void processUpload(Session session, byte[] byteArray, boolean last) {
-
-//		String rootPath = "C:\\Users\\DANG VAN CUONG\\eclipse-workspace\\web_chat\\archive";
-//		ByteArrayInputStream bis = new ByteArrayInputStream(byteArray);
-//		BufferedImage bImage2;
-//		try {
-//		    bImage2 = ImageIO.read(bis);
-//		    String pathImage = rootPath+"\\test1.jpg";
-//		    ImageIO.write(bImage2, "jpg", new File(pathImage));
-//		} catch (IOException e) {
-//		    e.printStackTrace();
-//		}
+	public void processUpload(Session session, ByteBuffer buffer, boolean last) {
+		chatAbstractService.handlerFile(files, last, buffer);
 	}
 
 	@OnClose

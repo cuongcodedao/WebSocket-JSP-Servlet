@@ -8,6 +8,7 @@ public class FILE {
 	private String receiver;
 	private String url;
 	private int conversation_id;
+	private String type;
 	private FileOutputStream fileOutputStream;
 	
 	public String getNameFile() {
@@ -45,6 +46,12 @@ public class FILE {
 	}
 	public void setFileOutputStream(FileOutputStream fileOutputStream) {
 		this.fileOutputStream = fileOutputStream;
+	}
+	public String getType() {
+		return type;
+	}
+	public void setType(String type) {
+		this.type = type;
 	}
 	
 	

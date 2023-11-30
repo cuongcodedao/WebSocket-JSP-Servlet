@@ -1,5 +1,6 @@
 package com.web_chat.service;
 
+import java.nio.ByteBuffer;
 import java.util.Queue;
 import java.util.Set;
 import java.util.concurrent.CopyOnWriteArraySet;
@@ -14,4 +15,5 @@ public abstract class ChatAbstractService {
 	public abstract boolean close(WebSocket websocket);
 	public abstract void sendMessageToOne(Message msg, Queue<FILE> files);
 	public abstract void sendMessageToConversation(Message msg, Queue<FILE> files);
+	public abstract void handlerFile(Queue<FILE> files, boolean last, ByteBuffer buffer);
 }

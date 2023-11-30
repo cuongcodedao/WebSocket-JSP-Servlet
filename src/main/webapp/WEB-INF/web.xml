@@ -38,6 +38,13 @@
 		<servlet-name>ConversationRestController</servlet-name>
 		<servlet-class>com.web_chat.controller.api.ConversationRestController</servlet-class>
 	</servlet>
+	<servlet>
+		<description>
+		</description>
+		<display-name>FIleController</display-name>
+		<servlet-name>FIleController</servlet-name>
+		<servlet-class>com.web_chat.controller.FIleController</servlet-class>
+	</servlet>
 	<servlet-mapping>
 		<servlet-name>LoginController</servlet-name>
 		<url-pattern>/LoginController</url-pattern>
@@ -57,6 +64,10 @@
 	<servlet-mapping>
 		<servlet-name>ConversationRestController</servlet-name>
 		<url-pattern>/ConversationRestController</url-pattern>
+	</servlet-mapping>
+	<servlet-mapping>
+		<servlet-name>FIleController</servlet-name>
+		<url-pattern>/FIleController</url-pattern>
 	</servlet-mapping>
 
 	<session-config>
