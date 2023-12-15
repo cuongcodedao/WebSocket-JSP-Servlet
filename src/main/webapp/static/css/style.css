@@ -12,16 +12,19 @@
 			position: relative;
 			width: 100%;
 			box-shadow: 0 1px 2px 0 rgb(0 0 0 / 10%);
-			
+
 		}
 
 		.chat-app .people-list {
-			width: 350px;
+			max-height: 438px;
+			max-width: 350px;
+			overflow-x: auto;
 			position: absolute;
 			left: 0;
 			top: 0;
 			padding: 20px;
 			z-index: 7;
+			overflow-y: auto;
 		}
 
 		.chat-app .chat {
@@ -32,10 +35,11 @@
 		.people-list {
 			transition: 0.5s;
 		}
-		
-		.people-list .chat-list{
+
+		.people-list .chat-list {
 			height: 438px;
 		}
+
 		.people-list .chat-list li {
 			padding: 10px 15px;
 			list-style: none;
@@ -50,7 +54,7 @@
 		.people-list .chat-list li.active {
 			background: #fff;
 		}
-		
+
 		.people-list .chat-list li .name {
 			font-size: 15px;
 		}
@@ -92,8 +96,8 @@
 		}
 
 		.chat .chat-history {
-			height:400px;
-			overflow-y:auto;
+			height: 400px;
+			overflow-y: auto;
 			padding: 20px;
 			border-bottom: 2px solid #fff;
 		}
@@ -265,33 +269,36 @@
 				overflow-x: auto;
 			}
 		}
-		
-		
-		.add_friend.hiden{
-			display:none;
-		}
-		
-		.modal-friend{
-			display:none;
-		}
-		.modal-friend.active{
-			display:block;
-		}
-		
-		.send_message_btn{
+
+
+		.add_friend.hiden {
 			display: none;
 		}
-		.send_message_btn.active{
-			display:block;
+
+		.modal-friend {
+			display: none;
 		}
-		
-		.group-icon-navbar{
+
+		.modal-friend.active {
+			display: block;
+		}
+
+		.send_message_btn {
+			display: none;
+		}
+
+		.send_message_btn.active {
+			display: block;
+		}
+
+		.group-icon-navbar {
 			width: 100%;
-			display:flex;
+			display: flex;
 			justify-content: center;
-			margin-bottom:20px;
+			margin-bottom: 20px;
 		}
-		.icon-navbar{
+
+		.icon-navbar {
 			font-size: 25px;
 			height: 50px;
 			width: 100%;
@@ -301,34 +308,39 @@
 			justify-content: center;
 			border-radius: 10px;
 		}
-		.icon-navbar.active{
+
+		.icon-navbar.active {
 			background-color: rgb(128, 255, 255);
 		}
-		
-		.icon-navbar:hover{
+
+		.icon-navbar:hover {
 			background-color: #ccc;
 		}
-		.modal-createCvs{
+
+		.modal-createCvs {
 			display: none;
 		}
-		
-		.modal-createCvs.active{
+
+		.modal-createCvs.active {
 			display: block;
 		}
-		.create-conversation{
+
+		.create-conversation {
 			background-color: lightskyblue;
 		}
-		.add_into_conversation.hiden{
-			display:none;
+
+		.add_into_conversation.hiden {
+			display: none;
 		}
-		
-		.modal-add_member{
-			display:none;
+
+		.modal-add_member {
+			display: none;
 		}
-		.modal-add_member.active{
+
+		.modal-add_member.active {
 			display: block;
 		}
-		
+
 		.add-member-list li {
 			padding: 10px 15px;
 			list-style: none;
@@ -344,7 +356,7 @@
 		.add-member-list li.active {
 			background: #fff;
 		}
-		
+
 		.add-member-list li .name {
 			font-size: 15px;
 		}
@@ -352,14 +364,51 @@
 		.add-member-list img {
 			width: 45px;
 			border-radius: 50%;
-			margin-right:10px;
+			margin-right: 10px;
 		}
-		.message_input{
+
+		.message_input {
 			width: 80%;
 		}
+		.btn_send{
+			width: 100%;
+		}
+
+		.wrap_attachment {
+			display: flex;
+		}
+		.input-group-text{
+			height: calc(1.5em + .75rem + 2px);
+		}
+		.attachment {
+			margin: 20px 10px;
+			display: flex;
+			align-items: center;
+			justify-content: flex-start;
+			max-width: 100px;
+			height: 35px;
+			background-color: aqua;
+			color: black;
+			font-size: 14px;
+			border-radius: 15px;
+			overflow: hidden;
+			white-space: nowrap;
+			text-overflow: ellipsis;
+		}
+
+		.attachment_text {
+			margin-left: 7px;
+		}
 		
 		
 		
+		.manage_user-conversation{
+			display:none;
+		}
+		
+		.manage_user-conversation.active{
+			display:inline-block;
+		}
 		
 		
 		

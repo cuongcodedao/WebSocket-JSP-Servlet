@@ -6,7 +6,7 @@ var ampm = "AM";
 if (hours >= 12) ampm = "PM";
 var formattedMinutes = minutes.toString().padStart(2, '0');
 var formattedHours = hours.toString().padStart(2, '0');
-var hh_mm = formattedHours+":"+formattedMinutes;
+var hh_mm = formattedHours + ":" + formattedMinutes;
 var username = document.querySelector(".username").value;
 var receiver = null;
 var conversation = null;
@@ -33,17 +33,19 @@ function connect(callback) {
 
 	ws.onmessage = function(event) {
 		var messageContent = JSON.parse(event.data);
-		var conversation_wrap = document.querySelector('.conversation_wrap');
-		if (messageContent.content == "add_friend" && receiver != null) {
-			document.querySelector(".modal-friend").classList.add("active");
+		if (messageContent.to == receiver || messageContent.conversation_id == conversation_id) {
+			var conversation_wrap = document.querySelector('.conversation_wrap');
+			if (messageContent.content == "add_friend" && receiver != null) {
+				document.querySelector(".modal-friend").classList.add("active");
+			}
+			else {
+				var message = document.createElement('li');
+				message.classList.add('clearfix');
+				message.innerHTML = buildMessage(messageContent, false, hh_mm);
+				conversation_wrap.appendChild(message);
+			}
+			chatBoxScroll.scrollTop = chatBoxScroll.scrollHeight;
 		}
-		else {
-			var message = document.createElement('li');
-			message.classList.add('clearfix');
-			message.innerHTML = buildMessage(messageContent, false, hh_mm);
-			conversation_wrap.appendChild(message);
-		}
-		chatBoxScroll.scrollTop = chatBoxScroll.scrollHeight;
 	};
 
 	ws.onclose = function(event) {
@@ -71,13 +73,14 @@ function send() {
 		message.classList.add('clearfix');
 		conversation_wrap.appendChild(message);
 		var json = buildJson(content, "text");
-		message.innerHTML =  buildMessage(JSON.parse(json), true, hh_mm);
+		message.innerHTML = buildMessage(JSON.parse(json), true, hh_mm);
 		ws.send(json);
 	}
 	else if (listFile.length != 0) {
 		sendAttachment();
 	}
 	document.querySelector(".content").value = "";
+	document.querySelector(".wrap_attachment").innerHTML = ``;
 	chatBoxScroll.scrollTop = chatBoxScroll.scrollHeight;
 }
 
@@ -95,11 +98,11 @@ function sendAttachment() {
 	}
 	listFile = [];
 }
-function renderFileSent(file){
+function renderFileSent(file) {
 	var message;
 	if (file.type.includes("image")) {
-			const url = URL.createObjectURL(file);
-			message = `
+		const url = URL.createObjectURL(file);
+		message = `
 				<div class="message-data text-right">
 				<span class="message-data-time">${hh_mm} ${ampm}</span>
 				</div>
@@ -107,10 +110,10 @@ function renderFileSent(file){
 					<img src="${url}" alt="" width="250" height="150">
 				</div>
         	`;
-		}
-		else if (file.type.includes("video")) {
-			const url = URL.createObjectURL(file);
-			message = `
+	}
+	else if (file.type.includes("video")) {
+		const url = URL.createObjectURL(file);
+		message = `
 	        		<div class="message-data text-right">
 							<span class="message-data-time">${hh_mm} ${ampm}</span>
 						</div>
@@ -121,10 +124,10 @@ function renderFileSent(file){
 							</video>
 						</div>
 	        	`;
-		}
-		else if (file.type.includes("pdf")) {
-			const url = URL.createObjectURL(file);
-			message = `
+	}
+	else if (file.type.includes("pdf")) {
+		const url = URL.createObjectURL(file);
+		message = `
 	        		<div class="message-data text-right">
 							<span class="message-data-time">${hh_mm} ${ampm}</span>
 						</div>
@@ -132,9 +135,9 @@ function renderFileSent(file){
 							<a href="${url}">Click here to view</a>
 						</div>
 	        	`;
-		}
-		else if (file.type.includes("text")) {
-			message = `
+	}
+	else if (file.type.includes("text")) {
+		message = `
 	        		<div class="message-data text-right">
 							<span class="message-data-time">${hh_mm} ${ampm}</span>
 						</div>
@@ -142,8 +145,8 @@ function renderFileSent(file){
 							${content}
 						</div>
 	        	`;
-		}
-		return message;
+	}
+	return message;
 }
 
 function buildJson(content, type) {
@@ -173,8 +176,12 @@ var loadUser = function() {
 							chatListItem.classList.add("active");
 							chatListItem.setAttribute("id", user.username);
 							chatListItem.setAttribute("onclick", "loadMessage(this)")
+							var srcAvatar = "/static/images/user_avatar.png";
+							if (user.avatar != null && user.avatar != "") {
+								srcAvatar = "http://localhost:8080/files?userId=" + user.id;
+							}
 							chatListItem.innerHTML = `
-								<img src="https://bootdey.com/img/Content/avatar/avatar2.png" alt="avatar">
+								<img src="${srcAvatar}" alt="avatar">
 								<div class="about">
 									<div class="name">${user.username}</div>
 									<div class="status">
@@ -227,16 +234,17 @@ function buildMessage(message, ride_sight, hh_mm) {
 	var type = message.type;
 	var content = message.content;
 	var receiver = message.to;
-	if(receiver == null){
+	if (receiver == null) {
 		receiver = message.conversation_id;
 	}
 	var username = message.from;
 	var msg;
+	var avatarChatting = document.querySelector(".img_avatar_chatting").getAttribute("src");
 	if (ride_sight == false) {
 		if (type.includes("image")) {
 			var srcImage = "http://localhost:8080/files?sender=" + username + "&receiver=" + receiver + "&filename=" + content;
 			msg = `<div class="message-data">
-							<img src="https://bootdey.com/img/Content/avatar/avatar7.png" alt="avatar">
+							<img src="${avatarChatting}" alt="avatar">
 							<span class="message-data-time">${hh_mm} ${ampm}</span>
 						</div>
 						<div class="message">
@@ -247,7 +255,7 @@ function buildMessage(message, ride_sight, hh_mm) {
 			var srcvideo = "http://localhost:8080/files?sender=" + username + "&receiver=" + receiver + "&filename=" + content;
 			msg = `
 	        		<div class="message-data">
-							<img src="https://bootdey.com/img/Content/avatar/avatar7.png" alt="avatar">
+							<img src="${avatarChatting}" alt="avatar">
 							<span class="message-data-time">${hh_mm} ${ampm}</span>
 						</div>
 						<div class="message">
@@ -262,7 +270,7 @@ function buildMessage(message, ride_sight, hh_mm) {
 			var srcPdf = "http://localhost:8080/files?sender=" + username + "&receiver=" + receiver + "&filename=" + content;
 			msg = `
 	        		<div class="message-data">
-							<img src="https://bootdey.com/img/Content/avatar/avatar7.png" alt="avatar">
+							<img src="${avatarChatting}" alt="avatar">
 							<span class="message-data-time">${hh_mm} ${ampm}</span>
 						</div>
 						<div class="message o-message">
@@ -273,7 +281,7 @@ function buildMessage(message, ride_sight, hh_mm) {
 		else if (type.includes("text")) {
 			msg = `
 	        		<div class="message-data">
-							<img src="https://bootdey.com/img/Content/avatar/avatar7.png" alt="avatar">
+							<img src="${avatarChatting}" alt="avatar">
 							<span class="message-data-time">${hh_mm} ${ampm}</span>
 						</div>
 						<div class="message o-message">
@@ -355,6 +363,7 @@ function loadMessageOfConversation(element) {
 
 }
 function loadUserChatting() {
+	var avatarChatting = document.querySelector(".img_avatar_chatting");
 	var nameChat = document.querySelector(".name_user_chatting");
 	var xmlRequest = new XMLHttpRequest();
 	xmlRequest.open("get", "http://localhost:8080/api_user?username=" + receiver);
@@ -362,22 +371,35 @@ function loadUserChatting() {
 		if (this.readyState == 4 && this.status == 200) {
 			var user = JSON.parse(this.responseText);
 			nameChat.innerHTML = user.username;
+			var srcAvatar = "/static/images/user_avatar.png";
+			if (user.avatar != null && user.avatar != "") {
+				srcAvatar = "http://localhost:8080/files?userId=" + user.id;
+			}
+			avatarChatting.setAttribute("src", srcAvatar);
 		}
 	}
+	showManageUserBtn();
 	xmlRequest.send();
 
 }
 function loadConversationChatting() {
 	var nameChat = document.querySelector(".name_user_chatting");
+	var imgAvatar = document.querySelector(".img_avatar_chatting");
+	var srcAvatar = "/static/images/conversation_avatar.jpg";
 	var xmlRequest = new XMLHttpRequest();
 	xmlRequest.open("get", "http://localhost:8080/api_conversation?name=" + conversation);
 	xmlRequest.onreadystatechange = function() {
 		if (this.readyState == 4 && this.status == 200) {
 			var conversation = JSON.parse(this.responseText);
-			nameChat.innerHTML = conversation.name;
 			conversation_id = conversation.id;
+			if (conversation.avatar != null && conversation.avatar != "") {
+				srcAvatar = "http://localhost:8080/files?conversationId=" + conversation_id;
+			}
+			imgAvatar.src = srcAvatar;
+			nameChat.innerHTML = `<a href="/conversation?conversationId=${conversation.id}">${conversation.name}</a>`;
 		}
 	}
+	showManageUserBtn();
 	xmlRequest.send();
 }
 
@@ -500,6 +522,7 @@ function changeTab(element) {
 			`;
 			loadConversation();
 		}
+	
 	}
 }
 function showModalCreateConversation() {
@@ -534,6 +557,7 @@ function createNewConversation() {
 		.catch(error => {
 			console.error('There was an error with the fetch operation:', error);
 		});
+	location.reload();
 	document.querySelector(".modal-createCvs.active").classList.remove("active");
 }
 
@@ -548,9 +572,13 @@ function loadConversation() {
 						chatListItem.classList.add("clearfix");
 						chatListItem.classList.add("active");
 						chatListItem.setAttribute("id", conversation.name);
+						var srcAvatar = "/static/images/conversation_avatar.jpg";
+						if (conversation.avatar != null && conversation.avatar != "") {
+							srcAvatar = "http://localhost:8080/files?conversationId=" + conversation.id;
+						}
 						chatListItem.setAttribute("onclick", "loadMessageOfConversation(this)")
 						chatListItem.innerHTML = `
-								<img src="https://bootdey.com/img/Content/avatar/avatar2.png" alt="avatar">
+								<img src="${srcAvatar}" alt="avatar">
 								<div class="about">
 									<div class="name">${conversation.name}</div>
 									<div class="status">
@@ -578,8 +606,12 @@ function addIntoConversation() {
 		chatListItem.classList.add("active");
 		chatListItem.setAttribute("id", friend.username);
 		chatListItem.setAttribute("onclick", "addThisMember(this)")
+		var srcAvatar = "/static/images/user_avatar.png";
+		if (friend.avatar != null && friend.avatar != "") {
+			srcAvatar = "http://localhost:8080/files?userId=" + friend.id;
+		}
 		chatListItem.innerHTML = `
-								<img src="https://bootdey.com/img/Content/avatar/avatar2.png" alt="avatar">
+								<img src="${srcAvatar}" alt="avatar">
 								<div class="about">
 									<div class="name">${friend.username}</div>
 									<div class="status">
@@ -623,26 +655,40 @@ function closeModalAddMember() {
 function triggerFileInput() {
 	document.getElementById('fileInput').click();
 }
+function renderFileInText(listFile) {
+	var wrap_attachment = document.querySelector(".wrap_attachment");
+	var attachment_item = ``;
+	for (var file of listFile) {
+		attachment_item += `
+			<div class="attachment">
+       			 <i class="fa fa-paperclip"></i>
+        		<span class = "attachment_text">${file.name}</span>
+    		</div>
+		`
+	}
+	wrap_attachment.innerHTML = attachment_item;
+}
 
-function convertImage() {
+function convertFile() {
 	const fileInput = document.getElementById('fileInput');
 	const files = fileInput.files;
 	listFile = files;
+	renderFileInText(listFile);
 	console.log(listFile);
 }
-async function uploadAvatar(file, name){
-	let formData = new FormData(); 
-    formData.append("file", file);
-    formData.append("name", name)
-    await fetch('/files/avatar', {
-      method: "POST", 
-      body: formData
-    }); 
-    alert('The file upload with Ajax and Java was a success!');
-}
-function selectAvatar(){
+function selectAvatar() {
 	const avatar = document.getElementById("avatar");
 	avatarFile = avatar.files[0];
+}
+function showManageUserBtn(){
+	if(conversation_id!=null){
+		document.querySelector(".manage_user-conversation").classList.add("active");
+	}
+	else{
+		if(document.querySelector(".manage_user-conversation").classList.contains("active")){
+			document.querySelector(".manage_user-conversation").classList.remove("active");
+		}
+	}
 }
 
 

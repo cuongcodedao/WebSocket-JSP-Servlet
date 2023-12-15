@@ -5,6 +5,9 @@ import java.util.List;
 import com.web_chat.model.User;
 
 public interface IUserDAO {
+	public User findById(int id);
+	public void updateUser(int id, String username, String password, String avatar);
+	public int save(String username, String password, String avatar);
 	public User findUser(String username, String password);
 	public boolean isOnline(String username);
 	public void setOnline(String username, int status);

@@ -63,5 +63,10 @@ public class ConversationDAO extends AbstractDAO<Conversation> implements IConve
 				+ "conversation_user.user_id = ?";
 		return query(sql, new UserMapper() ,conversation_id, user_id).size()>0 ? true:false;
 	}
+	@Override
+	public void updateConversation(Conversation cvs) {
+		String sql = "update conversation set group__name = ?, avatar = ? where id = ?";
+		update(sql, cvs.getName(), cvs.getAvatar(), cvs.getId());
+	}
 	
 }

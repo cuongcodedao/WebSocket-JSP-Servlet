@@ -2,8 +2,6 @@ package com.web_chat.service.impl;
 
 import java.util.List;
 
-import javax.inject.Inject;
-
 import com.web_chat.dao.IConversationDAO;
 import com.web_chat.dao.IMessageDAO;
 import com.web_chat.dao.impl.ConversationDAO;

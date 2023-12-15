@@ -71,6 +71,25 @@ public class UserDAO extends AbstractDAO<User> implements IUserDAO{
 		sb.append("where conversation.id = ?");
 		return query(sb.toString(), new UserMapper(), conversation_id);
 	}
+
+	@Override
+	public int save(String username, String password, String avatar) {
+		String sql = "insert into user(username, password, isonline, avatar) values(?,?,?,?)";
+		return save(sql, username, password, 0, avatar);
+	}
+
+	@Override
+	public User findById(int id) {
+		String sql = "select * from user where id = ?";
+		List<User> list = query(sql, new UserMapper(), id);
+		return list.size() > 0 ? list.get(0) : null;
+	}
+
+	@Override
+	public void updateUser(int id, String username, String password, String avatar) {
+		String sql = "update user set username = ?, password = ?, avatar = ? where id = ?";
+		update(sql, username, password, avatar, id);
+	}
 	
 	
 }

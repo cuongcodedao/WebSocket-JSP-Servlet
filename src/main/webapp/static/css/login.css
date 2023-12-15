@@ -183,3 +183,24 @@ form .btn input[type="submit"]{
   font-weight: 500;
   cursor: pointer;
 }
+
+/* Style for Avatar */
+.avatar {
+  margin-top:15px;
+    margin-bottom: 20px;
+}
+.avatar-img {
+    width: 150px;
+    height: 150px;
+    border-radius: 50%;
+    object-fit: cover;
+    border: 2px solid #ccc;
+}
+.avatar-label {
+    display: block;
+    margin-top: 10px;
+    color: blue;
+    cursor: pointer;
+}
+
+

@@ -46,7 +46,6 @@ public class LoginController extends HttpServlet {
 			destPage = "/chat_box";
 		}
 		response.sendRedirect(destPage);
-		
 	}
 
 }

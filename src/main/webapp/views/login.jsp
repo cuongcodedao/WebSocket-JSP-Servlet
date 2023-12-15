@@ -31,12 +31,12 @@
                     <div class="field">
                         <input type="password" name="password" placeholder="Password" required>
                     </div>
-                    <div class="pass-link"><a href="#">Forgot password?</a></div>
                     <div class="field btn">
                         <div class="btn-layer"></div>
                         <input type="submit" value="Login">
                     </div>
                     <div class="signup-link">Not a member? <a href="">Signup now</a></div>
+               
                 </form>
                 <form action="#" class="signup">
                     <div class="field">
@@ -61,16 +61,13 @@
         const signupBtn = document.querySelector("label.signup");
         const signupLink = document.querySelector("form .signup-link a");
         signupBtn.onclick = (()=>{
-            loginForm.style.marginLeft = "-50%";
-            loginText.style.marginLeft = "-50%";
+           // loginForm.style.marginLeft = "-50%";
+            //loginText.style.marginLeft = "-50%";
+            window.location = "http://localhost:8080/user";
         });
         loginBtn.onclick = (()=>{
             loginForm.style.marginLeft = "0%";
             loginText.style.marginLeft = "0%";
-        });
-        signupLink.onclick = (()=>{
-            signupBtn.click();
-            return false;
         });
     </script>
 </body>

@@ -17,7 +17,10 @@
 </head>
 <body>
 	<div class="container">
-		<h1>Welcome ${sessionScope.user.getUsername()}</h1>
+		<a
+			href="http://localhost:8080/user?username=${sessionScope.user.getUsername()}">
+			<h1>Welcome ${sessionScope.user.getUsername()}</h1>
+		</a>
 		<div class="row clearfix">
 			<div class="col-lg-12">
 				<div class="card chat-app">
@@ -47,7 +50,7 @@
 							<div class="row">
 								<div class="col-lg-6">
 									<a href="javascript:void(0);" data-toggle="modal"
-										data-target="#view_info"> <img
+										data-target="#view_info"> <img class = "img_avatar_chatting"
 										src="https://bootdey.com/img/Content/avatar/avatar2.png"
 										alt="avatar">
 									</a>
@@ -68,15 +71,15 @@
 									<a href="javascript:void(0);" class="btn btn-outline-secondary"><i
 										class="fa fa-camera"></i></a> <a href="javascript:void(0)"
 										onclick="triggerFileInput()" class="btn btn-outline-primary"><i
-										class="fa fa-image"></i></a> <input type="file" multiple id="fileInput"
-										style="display: none;" onchange="convertImage()">
-									<a href="javascript:void(0);" class="btn btn-outline-info"><i
-										class="fa fa-cogs"></i></a> <a href="javascript:void(0);"
+										class="fa fa-image"></i></a> <input type="file" multiple
+										id="fileInput" style="display: none;" onchange="convertFile()">
+									<a href="javascript:void(0);" class="btn btn-outline-info manage_user-conversation"><i
+										class="fa fa-users"></i></a> <a href="javascript:void(0);"
 										class="btn btn-outline-warning"><i class="fa fa-question"></i></a>
 								</div>
 							</div>
 						</div>
-	
+
 
 
 						<div class="chat-history">
@@ -99,16 +102,15 @@
 						</div>
 						<div class="chat-message clearfix text_sending active">
 							<div class="input-group mb-0">
-								<div class = "message_input">
+								<div class="message_input">
 									<input type="text" class="form-control content"
-									placeholder="Enter text here...">
+										placeholder="Enter text here...">
+									<div class="wrap_attachment"></div>
 								</div>
 								<div class="input-group-prepend send_message_btn">
-									<span class="input-group-text">
-										<button class="" onclick="send()">
-											<i class="fa fa-send"></i>
-										</button>
-									</span>
+									<button class="btn btn-primary btn_send" onclick="send()">
+										<i class="fa fa-send"></i>
+									</button>
 								</div>
 							</div>
 						</div>
@@ -156,10 +158,6 @@
 						<div class="form-group">
 							<label for="groupName">Group Name:</label> <input type="text"
 								class="form-control" id="groupName" name="groupName" required>
-						</div>
-						<div class="form-group">
-							<label for="avatar">Choose Avatar:</label> <input type="file"
-								class="form-control-file" id="avatar" name="avatar" onchange = "selectAvatar()">
 						</div>
 					</form>
 				</div>

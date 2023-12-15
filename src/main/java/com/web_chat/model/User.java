@@ -8,7 +8,7 @@ public class User {
 	private String username;
 	private String password;
 	private boolean isOnline;
-	
+	private String avatar;
 	private List<Conversation> conversations = new ArrayList<>();
 	
 	public int getId() {
@@ -40,6 +40,12 @@ public class User {
 	}
 	public void setOnline(boolean isOnline) {
 		this.isOnline = isOnline;
+	}
+	public String getAvatar() {
+		return avatar;
+	}
+	public void setAvatar(String avatar) {
+		this.avatar = avatar;
 	}
 	
 

@@ -11,4 +11,5 @@ public interface IConversationDAO {
 	public Conversation createNew(String usernameCreater, String group_name);
 	public int addUser(int user_id, int conversation_id);
 	public boolean checkUserInGroup(int user_id, int conversation_id);
+	public void updateConversation(Conversation cvs);
 }

@@ -1,6 +1,10 @@
 package com.web_chat.service.impl;
 
+import java.io.File;
+import java.io.IOException;
 import java.util.List;
+
+import javax.servlet.http.Part;
 
 import com.web_chat.dao.IConversationDAO;
 import com.web_chat.dao.IUserDAO;
@@ -8,6 +12,7 @@ import com.web_chat.dao.impl.ConversationDAO;
 import com.web_chat.dao.impl.UserDAO;
 import com.web_chat.model.Conversation;
 import com.web_chat.model.User;
+import com.web_chat.service.FileAbstractService;
 import com.web_chat.service.IConversationService;
 
 public class ConversationService implements IConversationService{
@@ -50,6 +55,34 @@ public class ConversationService implements IConversationService{
 		User us = userDAO.findByUserName(username);
 		Conversation cvs = conversationDAO.findByName(conversationName);
 		return conversationDAO.addUser(us.getId(), cvs.getId());
+	}
+	@Override
+	public void updateConversation(int id, String name, Part avt) {
+		String filename = avt.getSubmittedFileName();
+		File dir = new File(FileAbstractService.rootPath + "\\conversation_avatar\\" + id);
+		if(!dir.exists()) {
+			dir.mkdir();
+		}
+		if(!filename.equals("")) {
+			try {
+				String extension = filename.substring(filename.lastIndexOf('.'), filename.length());
+				filename = "avatar"+extension;
+				avt.write(dir.getPath() + "\\" + filename);
+				Conversation con = conversationDAO.findById(id);
+				con.setAvatar(filename);
+				con.setName(name);
+				conversationDAO.updateConversation(con);
+			} catch (IOException e) {
+				e.printStackTrace();
+			}
+		}
+		else {
+			Conversation con = conversationDAO.findById(id);
+			con.setAvatar("");
+			con.setName(name);
+			conversationDAO.updateConversation(con);
+		}
+		
 	}
 
 }

@@ -15,6 +15,7 @@ public class UserMapper implements RowMapper<User>{
 			user.setUsername(rs.getString("username"));
 			user.setPassword(rs.getString("password"));
 			user.setOnline(rs.getBoolean("isonline"));
+			user.setAvatar(rs.getString("avatar"));
 			return user;
 		} catch (SQLException e) {
 			return null;
