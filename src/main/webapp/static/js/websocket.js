@@ -18,6 +18,7 @@ var typeMessage = "text";
 var byteArray = null;
 var listFile = [];
 var avatarFile = null;
+var voice_byte = null;
 var chatBoxScroll = document.querySelector(".chat-history");
 var conversation_wrap = document.querySelector('.conversation_wrap');
 function connect(callback) {
@@ -79,9 +80,26 @@ function send() {
 	else if (listFile.length != 0) {
 		sendAttachment();
 	}
+	else if (voice_byte != null) {
+		sendVoiceChat();
+		recorder = null;
+	}
+	console.log(voice_byte);
+	voice_byte = null;
 	document.querySelector(".content").value = "";
 	document.querySelector(".wrap_attachment").innerHTML = ``;
 	chatBoxScroll.scrollTop = chatBoxScroll.scrollHeight;
+}
+
+function sendVoiceChat() {
+	var message = document.createElement('li');
+	message.classList.add('clearfix');
+	message.innerHTML = renderFileSent(voice_byte);
+	conversation_wrap.appendChild(message);
+	var content = "voice" + messages.length + ".mp3";
+	var json = buildJson(content, "audio/");
+	ws.send(json);
+	ws.send(voice_byte);
 }
 
 function sendAttachment() {
@@ -122,6 +140,20 @@ function renderFileSent(file) {
 							  <source src="${url}" type="video/mp4">
 							  Your browser does not support the video tag.
 							</video>
+						</div>
+	        	`;
+	}
+	else if (file.type.includes("audio")) {
+		const url = URL.createObjectURL(file);
+		message = `
+	        		<div class="message-data text-right">
+							<span class="message-data-time">${hh_mm} ${ampm}</span>
+						</div>
+						<div class="message float-right">
+							<audio controls>
+							  <source src="${url}" type="audio/mpeg">
+							  Your browser does not support the audio tag.
+							</audio>
 						</div>
 	        	`;
 	}
@@ -266,6 +298,21 @@ function buildMessage(message, ride_sight, hh_mm) {
 						</div>
 	        	`;
 		}
+		else if (type.includes("audio")) {
+			var srcAudio = "http://localhost:8080/files?sender=" + username + "&receiver=" + receiver + "&filename=" + content;
+			msg = `
+	        		<div class="message-data">
+							<img src="${avatarChatting}" alt="avatar">
+							<span class="message-data-time">${hh_mm} ${ampm}</span>
+						</div>
+						<div class="message">
+							<audio controls>
+							  <source src="${srcAudio}" type="audio/mpeg">
+							  Your browser does not support the audio tag.
+							</audio>
+						</div>
+	        	`;
+		}
 		else if (type.includes("pdf")) {
 			var srcPdf = "http://localhost:8080/files?sender=" + username + "&receiver=" + receiver + "&filename=" + content;
 			msg = `
@@ -299,6 +346,20 @@ function buildMessage(message, ride_sight, hh_mm) {
 				</div>
 				<div class="message float-right">
 					<img src="${srcImage}" alt="" width="250" height="150">
+				</div>
+        	`;
+		}
+		if (type.includes("audio")) {
+			var srcAudio = "http://localhost:8080/files?sender=" + username + "&receiver=" + receiver + "&filename=" + content;
+			msg = `
+				<div class="message-data text-right">
+				<span class="message-data-time">${hh_mm} ${ampm}</span>
+				</div>
+				<div class="message float-right">
+					<audio controls>
+						<source src="${srcAudio}" type="audio/mpeg">
+						Your browser does not support the audio tag.
+					</audio>
 				</div>
         	`;
 		}
@@ -522,7 +583,7 @@ function changeTab(element) {
 			`;
 			loadConversation();
 		}
-	
+
 	}
 }
 function showModalCreateConversation() {
@@ -680,15 +741,85 @@ function selectAvatar() {
 	const avatar = document.getElementById("avatar");
 	avatarFile = avatar.files[0];
 }
-function showManageUserBtn(){
-	if(conversation_id!=null){
+function showManageUserBtn() {
+	if (conversation_id != null) {
 		document.querySelector(".manage_user-conversation").classList.add("active");
 	}
-	else{
-		if(document.querySelector(".manage_user-conversation").classList.contains("active")){
+	else {
+		if (document.querySelector(".manage_user-conversation").classList.contains("active")) {
 			document.querySelector(".manage_user-conversation").classList.remove("active");
 		}
 	}
+}
+
+
+let recorder;
+let startTime;
+let recordingInterval;
+let stop = false;
+
+const startRecording = async () => {
+	try {
+		const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+		const options = { mimeType: 'audio/webm' };
+		recorder = new MediaRecorder(stream, options);
+
+		startTime = Date.now(); // Lưu thời gian bắt đầu ghi âm
+
+		$('.recording-indicator').removeClass('d-none'); // Hiển thị thanh ghi âm và thời gian
+		$('.btn-record').addClass('recording'); // Thêm class để thay đổi giao diện khi đang ghi âm
+
+		recorder.ondataavailable = (event) => {
+			if (event.data.size > 0) {
+				voice_byte = event.data;
+				// Xử lý dữ liệu âm thanh ở đây, có thể gửi dữ liệu đến server
+				console.log('Dữ liệu âm thanh:', event.data);
+			}
+		};
+
+		recorder.onstop = () => {
+			//$('.recording-indicator').addClass('d-none'); // Ẩn thanh ghi âm và thời gian khi ghi âm kết thúc
+			//$('.btn-record').removeClass('recording'); // Loại bỏ class recording khi dừng ghi âm
+			//clearInterval(recordingInterval); // Dừng đếm thời gian ghi âm
+			stop = true;
+		};
+
+		if(stop === false) recorder.start();
+
+		// Cập nhật thanh ghi âm và thời gian ghi âm
+		if (stop === false) {
+			recordingInterval = setInterval(updateRecordingUI, 1000);
+			updateRecordingUI();
+		}
+	} catch (err) {
+		console.error('Lỗi khi truy cập microphone:', err);
+	}
+};
+
+const stopRecording = () => {
+	if (recorder && recorder.state !== 'inactive') {
+		recorder.stop();
+	}
+};
+
+$('.btn-record').click(function() {
+	if (!recorder) {
+		startRecording();
+	} else {
+		stopRecording();
+		recorder = null;
+	}
+});
+
+// Hàm cập nhật thanh ghi âm và thời gian ghi âm
+function updateRecordingUI() {
+	const currentTime = new Date(Date.now() - startTime);
+	const minutes = currentTime.getMinutes().toString().padStart(2, '0');
+	const seconds = currentTime.getSeconds().toString().padStart(2, '0');
+	const formattedTime = `${minutes}:${seconds}`;
+
+	$('.recording-time').text(formattedTime);
+	$('.recording-bar').css('width', (currentTime / 10000) * 10 + '%'); // Thay 10000 bằng thời gian ghi âm tối đa mong muốn
 }
 
 

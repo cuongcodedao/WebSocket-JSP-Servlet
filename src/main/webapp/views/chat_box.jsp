@@ -17,10 +17,16 @@
 </head>
 <body>
 	<div class="container">
-		<a
-			href="http://localhost:8080/user?username=${sessionScope.user.getUsername()}">
-			<h1>Welcome ${sessionScope.user.getUsername()}</h1>
-		</a>
+		<div class="header_chat">
+			<a
+				href="http://localhost:8080/user?username=${sessionScope.user.getUsername()}">
+				<h1>Welcome ${sessionScope.user.getUsername()}</h1>
+			</a>
+			<a
+				href="http://localhost:8080/logout">
+				<h1>Log Out</h1>
+			</a>
+		</div>
 		<div class="row clearfix">
 			<div class="col-lg-12">
 				<div class="card chat-app">
@@ -50,7 +56,7 @@
 							<div class="row">
 								<div class="col-lg-6">
 									<a href="javascript:void(0);" data-toggle="modal"
-										data-target="#view_info"> <img class = "img_avatar_chatting"
+										data-target="#view_info"> <img class="img_avatar_chatting"
 										src="https://bootdey.com/img/Content/avatar/avatar2.png"
 										alt="avatar">
 									</a>
@@ -73,7 +79,8 @@
 										onclick="triggerFileInput()" class="btn btn-outline-primary"><i
 										class="fa fa-image"></i></a> <input type="file" multiple
 										id="fileInput" style="display: none;" onchange="convertFile()">
-									<a href="javascript:void(0);" class="btn btn-outline-info manage_user-conversation"><i
+									<a href="javascript:void(0);"
+										class="btn btn-outline-info manage_user-conversation"><i
 										class="fa fa-users"></i></a> <a href="javascript:void(0);"
 										class="btn btn-outline-warning"><i class="fa fa-question"></i></a>
 								</div>
@@ -101,7 +108,16 @@
 							</ul>
 						</div>
 						<div class="chat-message clearfix text_sending active">
+							<div class="recording-indicator d-none">
+								<div class="recording-bar"></div>
+								<span class="recording-time">00:00</span>
+							</div>
 							<div class="input-group mb-0">
+								<div class="input-group-prepend">
+									<button class="btn btn-primary btn-record">
+										<i class="fa fa-microphone"></i>
+									</button>
+								</div>
 								<div class="message_input">
 									<input type="text" class="form-control content"
 										placeholder="Enter text here...">

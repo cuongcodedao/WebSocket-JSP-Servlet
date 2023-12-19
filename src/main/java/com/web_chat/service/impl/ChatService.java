@@ -71,6 +71,7 @@ public class ChatService extends ChatAbstractService {
 
 	@Override
 	public void sendMessageToOne(Message msg, Queue<FILE> files) {
+		System.out.println(msg.getType());
 		if (msg.getType().contains("/")) {
 			addIntoQueue(msg, files);
 		} else {
@@ -128,6 +129,9 @@ public class ChatService extends ChatAbstractService {
 				}
 				else if(type.startsWith("video")) {
 					message.setType("video");
+				}
+				else if(type.contains("audio")) {
+					message.setType("audio");
 				}
 				else if(type.endsWith("pdf")) {
 					message.setType("pdf");

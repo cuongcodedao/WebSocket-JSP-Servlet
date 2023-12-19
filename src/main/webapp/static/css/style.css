@@ -370,16 +370,19 @@
 		.message_input {
 			width: 80%;
 		}
-		.btn_send{
+
+		.btn_send {
 			width: 100%;
 		}
 
 		.wrap_attachment {
 			display: flex;
 		}
-		.input-group-text{
+
+		.input-group-text {
 			height: calc(1.5em + .75rem + 2px);
 		}
+
 		.attachment {
 			margin: 20px 10px;
 			display: flex;
@@ -399,18 +402,39 @@
 		.attachment_text {
 			margin-left: 7px;
 		}
-		
-		
-		
-		.manage_user-conversation{
-			display:none;
+
+
+
+		.manage_user-conversation {
+			display: none;
 		}
-		
-		.manage_user-conversation.active{
-			display:inline-block;
+
+		.manage_user-conversation.active {
+			display: inline-block;
 		}
-		
-		
-		
-		
-		
+
+		/* Thêm đoạn CSS này vào trong file CSS của bạn hoặc trong thẻ <style> trong file HTML */
+		.recording-indicator {
+			display: flex;
+			align-items: center;
+			margin-top: 5px;
+			position: relative;
+		}
+
+		.recording-bar {
+			height: 4px;
+			background-color: #007bff;
+			/* Màu sắc của thanh ghi âm */
+			width: 0;
+		}
+
+		.recording-time {
+			margin-left: 10px;
+			font-size: 14px;
+			color: #333;
+			/* Màu sắc của thời gian ghi âm */
+		}
+		.header_chat{
+			display:flex;
+			justify-content: space-between;
+		}

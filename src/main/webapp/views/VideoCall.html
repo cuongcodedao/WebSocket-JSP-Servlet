@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Voice Chat</title>
+  <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
+</head>
+<body>
+
+<div class="container mt-5">
+  <div class="row">
+    <div class="col-md-6 offset-md-3">
+      <h2 class="text-center mb-4">Voice Chat</h2>
+      <div class="form-group">
+        <button id="startRecord" class="btn btn-primary">Bắt đầu Ghi Âm</button>
+        <button id="stopRecord" class="btn btn-danger d-none">Dừng Ghi Âm</button>
+      </div>
+      <canvas id="volumeMeter" width="400" height="100"></canvas>
+      <audio controls class="d-none" id="audioPlayback"></audio>
+    </div>
+  </div>
+</div>
+
+<script>
+  let recorder;
+  let audioChunks = [];
+
+  const startRecording = async () => {
+    try {
+      const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+      const options = { mimeType: 'audio/webm' };
+      recorder = new MediaRecorder(stream, options);
+
+      const audioContext = new (window.AudioContext || window.webkitAudioContext)();
+      const source = audioContext.createMediaStreamSource(stream);
+      const analyser = audioContext.createAnalyser();
+      source.connect(analyser);
+
+      const dataArray = new Uint8Array(analyser.frequencyBinCount);
+
+      const canvas = document.getElementById('volumeMeter');
+      const ctx = canvas.getContext('2d');
+      const barWidth = 10;
+
+      recorder.ondataavailable = (event) => {
+        if (event.data.size > 0) {
+          audioChunks.push(event.data);
+        }
+      };
+
+      recorder.onstop = () => {
+        const audioBlob = new Blob(audioChunks, { type: 'audio/mp3' });
+        const audioUrl = URL.createObjectURL(audioBlob);
+
+        const audioElement = document.getElementById('audioPlayback');
+        audioElement.src = audioUrl;
+        audioElement.classList.remove('d-none');
+
+        const startBtn = document.getElementById('startRecord');
+        startBtn.classList.remove('d-none');
+
+        const stopBtn = document.getElementById('stopRecord');
+        stopBtn.classList.add('d-none');
+
+        audioChunks = [];
+      };
+
+      const startBtn = document.getElementById('startRecord');
+      startBtn.classList.add('d-none');
+
+      const stopBtn = document.getElementById('stopRecord');
+      stopBtn.classList.remove('d-none');
+
+      recorder.start();
+
+      function draw() {
+        requestAnimationFrame(draw);
+
+        analyser.getByteFrequencyData(dataArray);
+
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+        let barHeight;
+        for (let i = 0; i < dataArray.length; i++) {
+          barHeight = dataArray[i] / 2;
+          ctx.fillStyle = 'rgb(50, 168, 82)';
+          ctx.fillRect(i * (barWidth + 1), canvas.height - barHeight, barWidth, barHeight);
+        }
+      }
+
+      draw();
+    } catch (err) {
+      console.error('Lỗi khi truy cập microphone:', err);
+    }
+  };
+
+  const stopRecording = () => {
+    if (recorder && recorder.state !== 'inactive') {
+      recorder.stop();
+    }
+  };
+
+  document.getElementById('startRecord').addEventListener('click', startRecording);
+  document.getElementById('stopRecord').addEventListener('click', stopRecording);
+</script>
+
+</body>
+</html>
