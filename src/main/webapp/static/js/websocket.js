@@ -19,6 +19,7 @@ var byteArray = null;
 var listFile = [];
 var avatarFile = null;
 var voice_byte = null;
+var hostname = window.location.host;
 var chatBoxScroll = document.querySelector(".chat-history");
 var conversation_wrap = document.querySelector('.conversation_wrap');
 function connect(callback) {
@@ -28,15 +29,16 @@ function connect(callback) {
 	ws.onopen = function(event) {
 		console.log("Kết nối WebSocket đã được thiết lập.");
 		console.log(event);
-		loadUser();
+		loadFriend();
 		chatBoxScroll.scrollTop = chatBoxScroll.scrollHeight;
 	};
 
 	ws.onmessage = function(event) {
 		var messageContent = JSON.parse(event.data);
-		if (messageContent.to == receiver || messageContent.conversation_id == conversation_id) {
+		console.log(messageContent, receiver);
+		if (messageContent.from == receiver || messageContent.conversation_id == conversation_id) {
 			var conversation_wrap = document.querySelector('.conversation_wrap');
-			if (messageContent.content == "add_friend" && receiver != null) {
+			if (messageContent.type == "add_friend" && receiver != null) {
 				document.querySelector(".modal-friend").classList.add("active");
 			}
 			else {
@@ -60,7 +62,7 @@ function connect(callback) {
 	ws.onerror = function(error) {
 		console.error("Lỗi kết nối WebSocket: " + error);
 	};
-	callback();
+	callback()
 }
 
 window.onload = function() {
@@ -192,8 +194,8 @@ function buildJson(content, type) {
 	return json;
 }
 
-var loadUser = function() {
-	fetch("http://localhost:8080/api_user")
+var loadFriend = function() {
+	fetch("http://" + hostname + "/api_friend?username="+username)
 		.then(function(data) {
 			data.json()
 				.then(data => {
@@ -210,7 +212,7 @@ var loadUser = function() {
 							chatListItem.setAttribute("onclick", "loadMessage(this)")
 							var srcAvatar = "/static/images/user_avatar.png";
 							if (user.avatar != null && user.avatar != "") {
-								srcAvatar = "http://localhost:8080/files?userId=" + user.id;
+								srcAvatar = "http://" + hostname + "/files?userId=" + user.id;
 							}
 							chatListItem.innerHTML = `
 								<img src="${srcAvatar}" alt="avatar">
@@ -230,10 +232,52 @@ var loadUser = function() {
 			console.log(ex);
 		});
 }
+
+function searchUserByKey(){
+	var userKeyName = document.querySelector(".search_user").value;
+	if(userKeyName==="") return;
+	var xmlRequest = new XMLHttpRequest();
+	xmlRequest.open("get", "http://" + hostname + "/api_user?keyname="+userKeyName);
+	xmlRequest.onreadystatechange = function() {
+		if (this.readyState == 4 && this.status == 200) {
+			var arrayUserByKey = JSON.parse(this.responseText);
+			var listUser = document.querySelector(".chat-list");
+			listUser.innerHTML = ``;
+			for (var user of arrayUserByKey) {
+				if (user.username != username) {
+					var status = "offline";
+					if (user.online == true) status = "online";
+					var chatListItem = document.createElement("li");
+					chatListItem.classList.add("clearfix");
+					chatListItem.classList.add("active");
+					chatListItem.setAttribute("id", user.username);
+					chatListItem.setAttribute("onclick", "loadMessage(this)")
+					var srcAvatar = "/static/images/user_avatar.png";
+					if (user.avatar != null && user.avatar != "") {
+						srcAvatar = "http://" + hostname + "/files?userId=" + user.id;
+					}
+					chatListItem.innerHTML = `
+						<img src="${srcAvatar}" alt="avatar">
+						<div class="about">
+							<div class="name">${user.username}</div>
+							<div class="status">
+								<i class="fa fa-circle ${status}"></i>
+							</div>
+						</div>
+					`;
+					listUser.appendChild(chatListItem);
+				}
+			}
+		}
+	};
+	xmlRequest.send();
+	
+}
+
 function getMessage(sender, receiver) {
 	var chatFrameCur = document.querySelector(".conversation_wrap");
 	var xmlRequest = new XMLHttpRequest();
-	xmlRequest.open("get", "http://localhost:8080/api_chat?sender=" + sender + "&receiver=" + receiver);
+	xmlRequest.open("get", "http://" + hostname + "/api_chat?sender=" + sender + "&receiver=" + receiver);
 	xmlRequest.onreadystatechange = function() {
 		if (this.readyState == 4 && this.status == 200) {
 			var messageAppend = "";
@@ -242,7 +286,7 @@ function getMessage(sender, receiver) {
 			for (var message of arrayMessage) {
 				var date = new Date(message.date_sent);
 				var hh_mm = date.getHours() + ":" + date.getMinutes();
-				if (message.content != "add_friend") {
+				if (message.type != "add_friend") {
 					if (message.from != username) {
 						messageAppend += `<li class="clearfix">` + buildMessage(message, false, hh_mm) +
 							`</li>`;
@@ -274,7 +318,7 @@ function buildMessage(message, ride_sight, hh_mm) {
 	var avatarChatting = document.querySelector(".img_avatar_chatting").getAttribute("src");
 	if (ride_sight == false) {
 		if (type.includes("image")) {
-			var srcImage = "http://localhost:8080/files?sender=" + username + "&receiver=" + receiver + "&filename=" + content;
+			var srcImage = "http://" + hostname + "/files?sender=" + username + "&receiver=" + receiver + "&filename=" + content;
 			msg = `<div class="message-data">
 							<img src="${avatarChatting}" alt="avatar">
 							<span class="message-data-time">${hh_mm} ${ampm}</span>
@@ -284,7 +328,7 @@ function buildMessage(message, ride_sight, hh_mm) {
 						</div>`
 		}
 		else if (type.includes("video")) {
-			var srcvideo = "http://localhost:8080/files?sender=" + username + "&receiver=" + receiver + "&filename=" + content;
+			var srcvideo = "http://" + hostname + "/files?sender=" + username + "&receiver=" + receiver + "&filename=" + content;
 			msg = `
 	        		<div class="message-data">
 							<img src="${avatarChatting}" alt="avatar">
@@ -299,7 +343,7 @@ function buildMessage(message, ride_sight, hh_mm) {
 	        	`;
 		}
 		else if (type.includes("audio")) {
-			var srcAudio = "http://localhost:8080/files?sender=" + username + "&receiver=" + receiver + "&filename=" + content;
+			var srcAudio = "http://" + hostname + "/files?sender=" + username + "&receiver=" + receiver + "&filename=" + content;
 			msg = `
 	        		<div class="message-data">
 							<img src="${avatarChatting}" alt="avatar">
@@ -314,7 +358,7 @@ function buildMessage(message, ride_sight, hh_mm) {
 	        	`;
 		}
 		else if (type.includes("pdf")) {
-			var srcPdf = "http://localhost:8080/files?sender=" + username + "&receiver=" + receiver + "&filename=" + content;
+			var srcPdf = "http://" + hostname + "/files?sender=" + username + "&receiver=" + receiver + "&filename=" + content;
 			msg = `
 	        		<div class="message-data">
 							<img src="${avatarChatting}" alt="avatar">
@@ -339,7 +383,7 @@ function buildMessage(message, ride_sight, hh_mm) {
 	}
 	else {
 		if (type.includes("image")) {
-			var srcImage = "http://localhost:8080/files?sender=" + username + "&receiver=" + receiver + "&filename=" + content;
+			var srcImage = "http://" + hostname + "/files?sender=" + username + "&receiver=" + receiver + "&filename=" + content;
 			msg = `
 				<div class="message-data text-right">
 				<span class="message-data-time">${hh_mm} ${ampm}</span>
@@ -350,7 +394,7 @@ function buildMessage(message, ride_sight, hh_mm) {
         	`;
 		}
 		if (type.includes("audio")) {
-			var srcAudio = "http://localhost:8080/files?sender=" + username + "&receiver=" + receiver + "&filename=" + content;
+			var srcAudio = "http://" + hostname + "/files?sender=" + username + "&receiver=" + receiver + "&filename=" + content;
 			msg = `
 				<div class="message-data text-right">
 				<span class="message-data-time">${hh_mm} ${ampm}</span>
@@ -364,7 +408,7 @@ function buildMessage(message, ride_sight, hh_mm) {
         	`;
 		}
 		else if (type.includes("video")) {
-			var srcvideo = "http://localhost:8080/files?sender=" + username + "&receiver=" + receiver + "&filename=" + content;
+			var srcvideo = "http://" + hostname + "/files?sender=" + username + "&receiver=" + receiver + "&filename=" + content;
 			msg = `
 	        		<div class="message-data text-right">
 							<span class="message-data-time">${hh_mm} ${ampm}</span>
@@ -378,7 +422,7 @@ function buildMessage(message, ride_sight, hh_mm) {
 	        	`;
 		}
 		else if (type.includes("pdf")) {
-			var srcPdf = "http://localhost:8080/files?sender=" + username + "&receiver=" + receiver + "&filename=" + content;
+			var srcPdf = "http://" + hostname + "/files?sender=" + username + "&receiver=" + receiver + "&filename=" + content;
 			msg = `
 	        		<div class="message-data text-right">
 							<span class="message-data-time">${hh_mm} ${ampm}</span>
@@ -427,14 +471,14 @@ function loadUserChatting() {
 	var avatarChatting = document.querySelector(".img_avatar_chatting");
 	var nameChat = document.querySelector(".name_user_chatting");
 	var xmlRequest = new XMLHttpRequest();
-	xmlRequest.open("get", "http://localhost:8080/api_user?username=" + receiver);
+	xmlRequest.open("get", "http://" + hostname + "/api_user?username=" + receiver);
 	xmlRequest.onreadystatechange = function() {
 		if (this.readyState == 4 && this.status == 200) {
 			var user = JSON.parse(this.responseText);
 			nameChat.innerHTML = user.username;
 			var srcAvatar = "/static/images/user_avatar.png";
 			if (user.avatar != null && user.avatar != "") {
-				srcAvatar = "http://localhost:8080/files?userId=" + user.id;
+				srcAvatar = "http://" + hostname + "/files?userId=" + user.id;
 			}
 			avatarChatting.setAttribute("src", srcAvatar);
 		}
@@ -448,13 +492,13 @@ function loadConversationChatting() {
 	var imgAvatar = document.querySelector(".img_avatar_chatting");
 	var srcAvatar = "/static/images/conversation_avatar.jpg";
 	var xmlRequest = new XMLHttpRequest();
-	xmlRequest.open("get", "http://localhost:8080/api_conversation?name=" + conversation);
+	xmlRequest.open("get", "http://" + hostname + "/api_conversation?name=" + conversation);
 	xmlRequest.onreadystatechange = function() {
 		if (this.readyState == 4 && this.status == 200) {
 			var conversation = JSON.parse(this.responseText);
 			conversation_id = conversation.id;
 			if (conversation.avatar != null && conversation.avatar != "") {
-				srcAvatar = "http://localhost:8080/files?conversationId=" + conversation_id;
+				srcAvatar = "http://" + hostname + "/files?conversationId=" + conversation_id;
 			}
 			imgAvatar.src = srcAvatar;
 			nameChat.innerHTML = `<a href="/conversation?conversationId=${conversation.id}">${conversation.name}</a>`;
@@ -468,7 +512,8 @@ function addFriend() {
 	var json = JSON.stringify({
 		"content": 'add_friend',
 		"from": username,
-		"to": receiver
+		"to": receiver,
+		"type": 'add_friend'
 	});
 	ws.send(json);
 }
@@ -487,7 +532,7 @@ function accept_friend() {
 		},
 		body: messageJson
 	};
-	fetch("http://localhost:8080/api_friend", options)
+	fetch("http://" + hostname + "/api_friend", options)
 		.then(function(response) {
 			return response.json();
 		})
@@ -517,7 +562,7 @@ function showAddFriendBtn() {
 		}
 		return;
 	}
-	fetch("http://localhost:8080/api_friend?user1=" + username + "&user2=" + receiver)
+	fetch("http://" + hostname + "/api_friend?user1=" + username + "&user2=" + receiver)
 		.then(function(data) {
 			data.json()
 				.then(data => {
@@ -544,7 +589,7 @@ function showAddFriendBtn() {
 		});
 }
 function getListFriend() {
-	fetch("http://localhost:8080/api_friend?username=" + username)
+	fetch("http://" + hostname + "/api_friend?username=" + username)
 		.then(function(data) {
 			data.json()
 				.then(data => {
@@ -557,13 +602,13 @@ function getListFriend() {
 }
 
 function showDialogFriend() {
-	if (!listFriend.find(user => user.username === receiver)) {
+	if (listFriend==null) {
 		document.querySelector(".modal-friend").classList.add("active");
 		console.log("Failed");
 		console.log(listFriend);
 	}
-	else {
-		console.log("Success");
+	else if(!listFriend.find(user => user.username === receiver)) {
+		document.querySelector(".modal-friend").classList.add("active");
 	}
 }
 
@@ -572,7 +617,7 @@ function changeTab(element) {
 		document.querySelector(".icon-navbar.active").classList.remove("active");
 		element.classList.add("active");
 		if (element.classList.contains("chat-couple")) {
-			loadUser();
+			loadFriend();
 		}
 		else {
 			document.querySelector(".chat-list").innerHTML = `
@@ -598,7 +643,7 @@ function createNewConversation() {
 		name: group_name
 	};
 	document.getElementById("groupName").value = "";
-	fetch("http://localhost:8080/api_conversation", {
+	fetch("http://" + hostname + "/api_conversation", {
 		method: 'POST',
 		headers: {
 			'Content-Type': 'application/json;charset=UTF-8'
@@ -623,11 +668,12 @@ function createNewConversation() {
 }
 
 function loadConversation() {
-	fetch("http://localhost:8080/api_conversation?username=" + username)
+	fetch("http://" + hostname + "/api_conversation?username=" + username)
 		.then(function(data) {
 			data.json()
 				.then(data => {
 					var listUser = document.querySelector(".chat-list");
+					listUser.innerHTML='';
 					for (var conversation of data) {
 						var chatListItem = document.createElement("li");
 						chatListItem.classList.add("clearfix");
@@ -635,7 +681,7 @@ function loadConversation() {
 						chatListItem.setAttribute("id", conversation.name);
 						var srcAvatar = "/static/images/conversation_avatar.jpg";
 						if (conversation.avatar != null && conversation.avatar != "") {
-							srcAvatar = "http://localhost:8080/files?conversationId=" + conversation.id;
+							srcAvatar = "http://" + hostname + "/files?conversationId=" + conversation.id;
 						}
 						chatListItem.setAttribute("onclick", "loadMessageOfConversation(this)")
 						chatListItem.innerHTML = `
@@ -669,7 +715,7 @@ function addIntoConversation() {
 		chatListItem.setAttribute("onclick", "addThisMember(this)")
 		var srcAvatar = "/static/images/user_avatar.png";
 		if (friend.avatar != null && friend.avatar != "") {
-			srcAvatar = "http://localhost:8080/files?userId=" + friend.id;
+			srcAvatar = "http://" + hostname + "/files?userId=" + friend.id;
 		}
 		chatListItem.innerHTML = `
 								<img src="${srcAvatar}" alt="avatar">
@@ -684,7 +730,7 @@ function addIntoConversation() {
 	}
 }
 function addThisMember(element) {
-	fetch("http://localhost:8080/api_conversation?friend_name=" + element.id + "&conversation_name=" + conversation, {
+	fetch("http://" + hostname + "/api_conversation?friend_name=" + element.id + "&conversation_name=" + conversation, {
 		method: 'POST',
 		headers: {
 			'Content-Type': 'application/json;charset=UTF-8'
@@ -742,7 +788,8 @@ function selectAvatar() {
 	avatarFile = avatar.files[0];
 }
 function showManageUserBtn() {
-	if (conversation_id != null) {
+	console.log(conversation);
+	if (conversation != null) {
 		document.querySelector(".manage_user-conversation").classList.add("active");
 	}
 	else {
@@ -758,7 +805,7 @@ let startTime;
 let recordingInterval;
 let stop = false;
 
-const startRecording = async () => {
+async function startRecording() {
 	try {
 		const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
 		const options = { mimeType: 'audio/webm' };
@@ -769,7 +816,7 @@ const startRecording = async () => {
 		$('.recording-indicator').removeClass('d-none'); // Hiển thị thanh ghi âm và thời gian
 		$('.btn-record').addClass('recording'); // Thêm class để thay đổi giao diện khi đang ghi âm
 
-		recorder.ondataavailable = (event) => {
+		recorder.ondataavailable = function(event) {
 			if (event.data.size > 0) {
 				voice_byte = event.data;
 				// Xử lý dữ liệu âm thanh ở đây, có thể gửi dữ liệu đến server
@@ -777,24 +824,22 @@ const startRecording = async () => {
 			}
 		};
 
-		recorder.onstop = () => {
-			//$('.recording-indicator').addClass('d-none'); // Ẩn thanh ghi âm và thời gian khi ghi âm kết thúc
-			//$('.btn-record').removeClass('recording'); // Loại bỏ class recording khi dừng ghi âm
-			//clearInterval(recordingInterval); // Dừng đếm thời gian ghi âm
-			stop = true;
+		recorder.onstop = function() {
+			$('.recording-indicator').addClass('d-none'); // Ẩn thanh ghi âm và thời gian khi ghi âm kết thúc
+			$('.btn-record').removeClass('recording'); // Loại bỏ class recording khi dừng ghi âm
+			clearInterval(recordingInterval); // Dừng đếm thời gian ghi âm
 		};
 
-		if(stop === false) recorder.start();
+		recorder.start();
 
 		// Cập nhật thanh ghi âm và thời gian ghi âm
-		if (stop === false) {
-			recordingInterval = setInterval(updateRecordingUI, 1000);
-			updateRecordingUI();
-		}
+		recordingInterval = setInterval(updateRecordingUI, 1000);
+		updateRecordingUI();
 	} catch (err) {
 		console.error('Lỗi khi truy cập microphone:', err);
 	}
-};
+}
+
 
 const stopRecording = () => {
 	if (recorder && recorder.state !== 'inactive') {
@@ -821,6 +866,8 @@ function updateRecordingUI() {
 	$('.recording-time').text(formattedTime);
 	$('.recording-bar').css('width', (currentTime / 10000) * 10 + '%'); // Thay 10000 bằng thời gian ghi âm tối đa mong muốn
 }
+
+
 
 
 

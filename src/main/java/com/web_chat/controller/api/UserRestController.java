@@ -23,9 +23,19 @@ public class UserRestController extends HttpServlet {
 	protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
 		ObjectMapper objectMapper = new ObjectMapper();
 		String username = request.getParameter("username");
+		String keyname = request.getParameter("keyname");
 		if(username != null) {
 			User user = userService.findByUserName(username);
 			String json = objectMapper.writeValueAsString(user);
+			response.setContentType("application/json");
+			response.setCharacterEncoding("UTF-8");
+			PrintWriter writer = response.getWriter();
+			writer.write(json);
+			writer.flush();
+		}
+		else if(keyname!=null) {
+			List<User> users = userService.findByKeyName(keyname);
+			String json = objectMapper.writeValueAsString(users);
 			response.setContentType("application/json");
 			response.setCharacterEncoding("UTF-8");
 			PrintWriter writer = response.getWriter();

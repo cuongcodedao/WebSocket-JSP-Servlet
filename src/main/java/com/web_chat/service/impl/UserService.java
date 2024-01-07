@@ -6,6 +6,7 @@ import java.util.List;
 
 import javax.servlet.http.Part;
 
+import com.web_chat.controller.FileController;
 import com.web_chat.dao.IUserDAO;
 import com.web_chat.dao.impl.UserDAO;
 import com.web_chat.model.User;
@@ -26,7 +27,9 @@ public class UserService implements IUserService{
 
 	@Override
 	public User findUser(String username, String password) {
-		return userDAO.findUser(username, password);
+		User user = userDAO.findUser(username, password);
+		System.out.println(user);
+		return user;
 	}
 
 	@Override
@@ -62,14 +65,15 @@ public class UserService implements IUserService{
 	@Override
 	public User save(String username, String password, Part avt) {
 		String filename = avt.getSubmittedFileName();
-		File dir = new File(FileAbstractService.rootPath + "\\" + username);
+		File dir = new File(FileController.rootPath + "/" + username);
 		dir.mkdir();
 		User user = null;
-		if(filename != null) {
+		System.out.println(filename);
+		if(!filename.equals("")) {
 			try {
 				String extension = filename.substring(filename.lastIndexOf('.'), filename.length());
 				filename = "avatar"+extension;
-				avt.write(dir.getPath() + "\\" + filename);
+				avt.write(dir.getPath() + "/" + filename);
 				System.out.println(filename);
 				int id = userDAO.save(username, password, filename);
 				user = userDAO.findById(id);
@@ -87,12 +91,12 @@ public class UserService implements IUserService{
 	@Override
 	public void updateUser(int id, String username, String password, Part avt) {
 		String filename = avt.getSubmittedFileName();
-		File dir = new File(FileAbstractService.rootPath + "\\" + username);
+		File dir = new File(FileAbstractService.rootPath + "/" + username);
 		if(!filename.equals("")) {
 			try {
 				String extension = filename.substring(filename.lastIndexOf('.'), filename.length());
 				filename = "avatar"+extension;
-				avt.write(dir.getPath() + "\\" + filename);
+				avt.write(dir.getPath() + "/" + filename);
 				userDAO.updateUser(id, username, password, filename);
 			} catch (IOException e) {
 				e.printStackTrace();
@@ -107,6 +111,11 @@ public class UserService implements IUserService{
 	@Override
 	public User findById(int id) {
 		return userDAO.findById(id);
+	}
+
+	@Override
+	public List<User> findByKeyName(String keyname) {
+		return userDAO.findByKeyName(keyname);
 	}
 	
 }

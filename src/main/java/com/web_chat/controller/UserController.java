@@ -1,6 +1,5 @@
 package com.web_chat.controller;
 
-import java.io.File;
 import java.io.IOException;
 
 import javax.servlet.RequestDispatcher;
@@ -34,7 +33,6 @@ public class UserController extends HttpServlet {
 	protected void doGet(HttpServletRequest request, HttpServletResponse response)
 			throws ServletException, IOException {
 		String username = request.getParameter("username");
-		String warning = request.getParameter("warning");
 		String pathInfo = "register";
 		if(username!=null) { 
 			User user = userService.findByUserName(username);

@@ -11,7 +11,6 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.Part;
 
-import com.web_chat.dao.IConversationDAO;
 import com.web_chat.model.Conversation;
 import com.web_chat.service.IConversationService;
 import com.web_chat.service.impl.ConversationService;

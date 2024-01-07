@@ -3,8 +3,6 @@ package com.web_chat.dao.impl;
 import java.util.List;
 
 import com.web_chat.dao.IUserDAO;
-import com.web_chat.mapper.ConversationMapper;
-import com.web_chat.mapper.MessageMapper;
 import com.web_chat.mapper.UserMapper;
 import com.web_chat.model.User;
 
@@ -28,6 +26,9 @@ public class UserDAO extends AbstractDAO<User> implements IUserDAO{
 	public User findUser(String username, String password) {
 		String sql = "select * from user where username = ? and `password`=?";
 		List<User> list = query(sql, new UserMapper() ,username, password);
+		for(User u:list) {
+			System.out.print(u);
+		}
 		return list.size() == 0 ? null : list.get(0);
 	}
 
@@ -89,6 +90,13 @@ public class UserDAO extends AbstractDAO<User> implements IUserDAO{
 	public void updateUser(int id, String username, String password, String avatar) {
 		String sql = "update user set username = ?, password = ?, avatar = ? where id = ?";
 		update(sql, username, password, avatar, id);
+	}
+
+	@Override
+	public List<User> findByKeyName(String keyname) {
+		String sql = "select * from user where username like '"+keyname+"%'";
+		List<User> list = query(sql, new UserMapper(), keyname);
+		return list;
 	}
 	
 	

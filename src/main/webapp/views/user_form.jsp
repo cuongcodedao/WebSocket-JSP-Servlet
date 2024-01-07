@@ -44,7 +44,7 @@
 					</div>
 					<div class="avatar">
 						<c:if test="${not empty user.getAvatar()}">
-							<img src="http://localhost:8080/files?userAvatar=${user.getUsername()}&avatarFileName=${user.getAvatar()}"
+							<img src="http://localhost:8080/files?userId=${user.getId()}"
 								alt="Avatar" id="avatarImg" class="avatar-img">
 						</c:if>
 						<c:if test="${empty user.getAvatar()}">

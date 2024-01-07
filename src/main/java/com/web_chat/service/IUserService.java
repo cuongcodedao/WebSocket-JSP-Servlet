@@ -14,6 +14,7 @@ public interface IUserService {
 	public void setOnline(String username, int status);
 	public List<User> findUserOnline();
 	public List<User> findAll();
+	public List<User> findByKeyName(String keyname);
 	public User findByUserName(String username);
 	public List<User> findAllByConversationId(int conversation_id);
 	public void updateUser(int id, String username, String password, Part avatar);

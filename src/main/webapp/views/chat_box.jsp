@@ -19,11 +19,11 @@
 	<div class="container">
 		<div class="header_chat">
 			<a
-				href="http://localhost:8080/user?username=${sessionScope.user.getUsername()}">
+				href="/user?username=${sessionScope.user.getUsername()}">
 				<h1>Welcome ${sessionScope.user.getUsername()}</h1>
 			</a>
 			<a
-				href="http://localhost:8080/logout">
+				href="/logout">
 				<h1>Log Out</h1>
 			</a>
 		</div>
@@ -45,7 +45,7 @@
 							<div class="input-group-prepend">
 								<span class="input-group-text"><i class="fa fa-search"></i></span>
 							</div>
-							<input type="text" class="form-control" placeholder="Search...">
+							<input type="text" class="form-control search_user" onkeyup=searchUserByKey() placeholder="Search...">
 						</div>
 						<ul class="list-unstyled chat-list mt-2 mb-0">
 

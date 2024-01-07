@@ -12,6 +12,7 @@ import java.util.stream.Collectors;
 
 import javax.websocket.EncodeException;
 
+import com.web_chat.controller.FileController;
 import com.web_chat.model.FILE;
 import com.web_chat.model.Message;
 import com.web_chat.model.User;
@@ -42,16 +43,17 @@ public class ChatService extends ChatAbstractService {
 	}
 
 	private void addIntoQueue(Message msg, Queue<FILE> files) {
-		String rootPath = "C:\\Users\\DANG VAN CUONG\\eclipse-workspace\\web_chat\\archive";
+//		String rootPath = "C:\\Users\\DANG VAN CUONG\\eclipse-workspace\\web_chat\\archive";
+		String rootPath = FileController.rootPath;
 		String receiver = msg.getTo();
 		if(receiver == null) {
 			receiver = msg.getConversation_id() + "";
 		}
-		File theDir = new File(rootPath + "\\" + msg.getFrom() + "_" +receiver);
+		File theDir = new File(rootPath + "/" + msg.getFrom() + "_" +receiver);
 		if (!theDir.exists()){
 		    theDir.mkdirs(); 
 		}
-		String pathDesFile = theDir.getPath() + "\\" + msg.getContent();
+		String pathDesFile = theDir.getPath() + "/" + msg.getContent();
 		System.out.println(pathDesFile);
 		FILE fileModel = new FILE();
 		fileModel.setNameFile(msg.getContent());
@@ -71,12 +73,11 @@ public class ChatService extends ChatAbstractService {
 
 	@Override
 	public void sendMessageToOne(Message msg, Queue<FILE> files) {
-		System.out.println(msg.getType());
 		if (msg.getType().contains("/")) {
 			addIntoQueue(msg, files);
 		} else {
 			webSockets.stream().filter(websocket -> websocket.getUsername().equals(msg.getTo())).forEach(websocket -> {
-				try {
+				try{
 					websocket.getSession().getBasicRemote().sendObject(msg);
 				} catch (IOException e) {
 					e.printStackTrace();

@@ -1,5 +1,7 @@
 package com.web_chat.controller;
 import java.io.*;
+import java.nio.file.Paths;
+
 import javax.servlet.ServletException;
 import javax.servlet.annotation.MultipartConfig;
 import javax.servlet.annotation.WebServlet;
@@ -20,7 +22,8 @@ import com.web_chat.service.impl.UserService;
 		)
 public class FileController extends HttpServlet {
 	private static final long serialVersionUID = 1L;
-	public static String rootPath = "C:\\Users\\DANG VAN CUONG\\eclipse-workspace\\web_chat\\archive";
+//	public static String rootPath = "C:\\Users\\DANG VAN CUONG\\eclipse-workspace\\web_chat\\archive";
+	public static String rootPath = Paths.get("archive").toAbsolutePath().toString();
 	private IConversationService conversationService = ConversationService.getInstance();
 	private IUserService userService = UserService.getInstance();
 
@@ -31,7 +34,7 @@ public class FileController extends HttpServlet {
         String userId = request.getParameter("userId");
         String conversationId = request.getParameter("conversationId");
         if(receiver != null) {
-        	File file = new File(rootPath + "\\" + sender + "_" + receiver + "\\" + namefile);
+        	File file = new File(rootPath + "/" + sender + "_" + receiver + "/" + namefile);
         	FileInputStream fis = new FileInputStream(file);
         	if(namefile.contains(".mp4")) {
         		 response.setContentType("video/mp4");
@@ -54,7 +57,7 @@ public class FileController extends HttpServlet {
         else if(userId != null){
         	int id = Integer.parseInt(userId);
         	User user = userService.findById(id);
-        	File file = new File(rootPath + "\\" + user.getUsername() + "\\" + user.getAvatar());
+        	File file = new File(rootPath + "/" + user.getUsername() + "/" + user.getAvatar());
         	FileInputStream fis = new FileInputStream(file);
         	response.setContentType("image/jpeg");
             response.setContentLength((int) file.length());
@@ -71,7 +74,7 @@ public class FileController extends HttpServlet {
         else if(conversationId!=null) {
         	int id = Integer.parseInt(conversationId);
         	Conversation cv = conversationService.findById(id);
-        	File file = new File(rootPath + "\\conversation_avatar\\" + conversationId + "\\" + cv.getAvatar());
+        	File file = new File(rootPath + "/conversation_avatar/" + conversationId + "/" + cv.getAvatar());
         	FileInputStream fis = new FileInputStream(file);
         	response.setContentType("image/jpeg");
             response.setContentLength((int) file.length());

@@ -1,0 +1,36 @@
+services:
+  web_chat:
+    image: in28min/web_chat:1.0
+    ports:
+      - "8080:8080"
+    restart: always
+    depends_on:
+      - mysql
+    volumes:
+      - ./archive:/usr/local/tomcat/archive
+    networks:
+      - webchat-application-network
+  mysql:
+    container_name: mysql_container
+    image: mysql:5.7
+    command: ["--init-file", "/docker-entrypoint-initdb.d/initdb.sql"]
+    ports:
+      - "3307:3306"
+    restart: always
+    environment:
+      - "MYSQL_ROOT_PASSWORD=123456"
+      - "MYSQL_DATABASE=web_chat"
+    volumes:
+      - mysql-database-volumes:/var/lib/mysql
+      - ./initdb.sql:/docker-entrypoint-initdb.d/initdb.sql
+    networks:
+      - webchat-application-network
+
+# Networks to be created to facilitate communication between containers
+networks:
+  webchat-application-network:
+    driver: bridge
+
+volumes:
+  mysql-database-volumes:
+
