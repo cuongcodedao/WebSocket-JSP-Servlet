@@ -1,6 +1,6 @@
 services:
   web_chat:
-    image: in28min/web_chat:1.0
+    image: cuongcodedao/web_chat:1.0
     ports:
       - "8080:8080"
     restart: always
