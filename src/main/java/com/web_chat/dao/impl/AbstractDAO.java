@@ -18,8 +18,8 @@ public class AbstractDAO<T> implements GenericDAO<T> {
 	public Connection getConnetion() {
 		try {
 			Class.forName("com.mysql.cj.jdbc.Driver");
-//			String url = "jdbc:mysql://mysql:3306/web_chat";
-			String url = "jdbc:mysql://localhost:3306/web_chat";
+			String url = "jdbc:mysql://mysql:3306/web_chat";
+//			String url = "jdbc:mysql://localhost:3306/web_chat";
 			String username = "root";
 			String password = "123456";
 			return DriverManager.getConnection(url, username, password);
