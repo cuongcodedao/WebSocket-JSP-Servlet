@@ -1,3 +1,4 @@
+create database web_chat;
 use web_chat;
 
 create table message(
