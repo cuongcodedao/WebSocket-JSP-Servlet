@@ -2,7 +2,7 @@ services:
   web_chat:
     image: cuongcodedao/web_chat:1.0
     ports:
-      - "8080:8080"
+      - "8081:8080"
     restart: always
     depends_on:
       - mysql
