@@ -6,6 +6,20 @@ pipeline {
     }
 
     stages {
+        stage('Clean Workspace') {
+            steps {
+                // Manually clean the workspace before proceeding
+                sh 'rm -rf /var/jenkins_home/workspace/Deploy_to_DEV_master/* || true'
+            }
+        }
+
+        stage('Checkout SCM') {
+            steps {
+                // Checkout the Git repository
+                checkout scm
+            }
+        }
+
         stage('Building/Deploying') {
             when {
                 expression { return params.ACTION == 'Build' }
@@ -32,7 +46,8 @@ pipeline {
 
     post {
         always {
-            cleanWs()  // Clean workspace after the pipeline finishes
+            // Clean workspace after the pipeline finishes
+            cleanWs()  // Requires Workspace Cleanup Plugin
         }
     }
 }
